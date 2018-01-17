@@ -1,3 +1,3 @@
-TSBK07 - Computer Graphics
+# TSBK07 - Computer Graphics
 
 Labs
