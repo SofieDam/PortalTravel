@@ -25,14 +25,15 @@ Yes! By passing a matrix of colors to the shader program.
 Modifiers declare how variables are meant to be used.
 
 - The “uniform” modifier is uniform for all vertices. It is information defined per primitive.
-- The “in” modifier is an attribute variable, which means that it is information defined per vertex. Attributes can be different for different vertices within a primitive while a uniform must be the same throughout a primitive.
-- The “out” modifier  is assigned indices (since it in this lab is assigned a fragment shader output).  The fragment shader output's index corresponds to a draw buffer.
+- The “in” modifier is an attribute variable, which means that it is information defined per vertex.
+Attributes can be different for different vertices within a primitive while a uniform must be the same throughout a primitive.
+- The "out" variable will be passed on to the next stage in the pipeline.
+The shader must set these variables during some point in its execution.
 
 ### What is the output of the vertex shader?
-
 The vertex shader passes through the transformation.
-The output is an transformation by matrix multiplication which will in our case result in a rotation.
+The output in this case is an transformation by matrix multiplication which will result in a rotation.
 
 ### What does the function glUniformMatrix4fv do?
-The function passes a matrix, of 4 vectors, to a shader program.
 The function specify the value of a uniform variable for the current program object.
+The function passes a matrix, of 4 vectors with datatype float, to a shader program.
