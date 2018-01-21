@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
 	glutInitContextVersion(3, 2);
+	glutInitWindowSize (500, 500);
 	glutCreateWindow ("lab1-2");
 	glutDisplayFunc(display);
 	init ();

@@ -37,3 +37,10 @@ The output in this case is an transformation by matrix multiplication which will
 ### What does the function glUniformMatrix4fv do?
 The function specify the value of a uniform variable for the current program object.
 The function passes a matrix, of 4 vectors with datatype float, to a shader program.
+
+
+## 3) Simple animation
+
+###  What is the frame rate of the animation?
+The frame is updated every 20 ms.
+Every time the display is updated, the triangle is rotating with 0.1 rad. 
