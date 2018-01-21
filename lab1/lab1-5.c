@@ -141,8 +141,8 @@ void init(void)
 
 	// lab1-5: turn on Z-buffer
 	glEnable(GL_DEPTH_TEST);
-
 	//glDisable(GL_DEPTH_TEST);
+
 	printError("GL inits");
 
 	// Load and compile shader

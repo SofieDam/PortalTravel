@@ -66,3 +66,27 @@ We could also have used Phong shading (the normal vector of the vertices is inte
 
 ### How do you change the facing of a polygon?
 By rotating around the x, y and z axis.
+
+
+## 6) Load a 3D model from disc
+
+### Why do we need normal vectors for a model?
+Instead of calculating shading values per vertex, and interpolating them to each pixel,
+the normal vector of the vertices is interpolated,
+so lighting can be calculated for each pixel with a unique normal vector.
+Like before, each vertex has a surface normal,
+but this time the surface normals, and not the shades, are interpolated.
+Note that the normal vectors can not be used after linear interpolation alone, because if we do,
+the length of the vectors will be shorter in the middle.
+Thus, normalization is necessary in the fragment shader.
+
+In order to calculate light, normal vectors must be included.
+
+### What did you do in your fragment shader?
+Calculate light (by using dot product), and interpolate normal vectors.
+
+### Should a normal vector always be perpendicular to a certain triangle? If not, why?
+Yes?
+
+### Now we are using glBindBuffer and glBufferData again. They deal with buffers, but in what way?
+They handle different kinds of buffers; vertices, normals and indexes. 
