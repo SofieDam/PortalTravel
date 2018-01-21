@@ -43,4 +43,18 @@ The function passes a matrix, of 4 vectors with datatype float, to a shader prog
 
 ###  What is the frame rate of the animation?
 The frame is updated every 20 ms.
-Every time the display is updated, the triangle is rotating with 0.1 rad. 
+Every time the display is updated, the triangle is rotating with 0.1 rad.
+
+## 4) Color shading
+
+### Did you need to do anything different when uploading the color data?
+I needed to create a matrix of colors for every vertex in the triangle.
+I also needed to create a VBO (vertex buffer object) for the color matrix, and load it to the shader program and connect it to an in variable in the vertex shader.
+
+### The "in" and "out" modifiers are now used for something different. What?
+??
+
+### What is this kind of shading called? What could we use otherwise?
+- Gouraud shading (shades are interpolated between vertices).
+- We could have used flat shading (same shading for the whole objects) as we did at the beginning of the lab.
+We could also have used Phong shading (the normal vector of the vertices is interpolated).
