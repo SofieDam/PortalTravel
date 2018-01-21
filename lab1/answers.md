@@ -43,7 +43,7 @@ The function passes a matrix, of 4 vectors with datatype float, to a shader prog
 
 ###  What is the frame rate of the animation?
 The frame is updated every 20 ms.
-Every time the display is updated, the triangle is rotating with 0.1 rad.
+Every time the display is updated, the triangle is rotating with 0.05 rad.
 
 ## 4) Color shading
 

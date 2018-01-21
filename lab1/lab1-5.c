@@ -1,9 +1,3 @@
-// Lab 1-3.
-// This is the same as the first simple example in the course book,
-// but with a few error checks.
-// Remember to copy your file to a new on appropriate places during the lab so you keep old results.
-// Note that the files "lab1-1.frag", "lab1-1.vert" are required.
-
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
 #ifdef __APPLE__
@@ -19,33 +13,94 @@
 
 // Globals
 // Data would normally be read from files
-GLfloat vertices[] =
-{
-	-0.5f,-0.5f,0.0f,
-	-0.5f,0.5f,0.0f,
-	0.5f,-0.5f,0.0f
+GLfloat cube[36*3] = {
+		-0.5,-0.5,-0.5,		// 0
+		-0.5,0.5,-0.5,		// 3
+		0.5,0.5,-0.5,		// 2
+		-0.5,-0.5,-0.5,		// 0
+		0.5,0.5,-0.5,		// 2
+		0.5,-0.5,-0.5,		// 1
+
+		0.5,0.5,-0.5,		// 2
+		-0.5,0.5,-0.5,		// 3
+		-0.5,0.5,0.5,		// 7
+		0.5,0.5,-0.5,		// 2
+		-0.5,0.5,0.5,		// 7
+		0.5,0.5,0.5,		// 6
+
+		-0.5,-0.5,-0.5,		// 0
+		-0.5,-0.5,0.5,		// 4
+		-0.5,0.5,0.5,		// 7
+		-0.5,-0.5,-0.5,		// 0
+		-0.5,0.5,0.5,		// 7
+		-0.5,0.5,-0.5,		// 3
+
+		0.5,-0.5,-0.5,		// 1
+		0.5,0.5,-0.5,		// 2
+		0.5,0.5,0.5,		// 6
+		0.5,-0.5,-0.5,		// 1
+		0.5,0.5,0.5,		// 6
+		0.5,-0.5,0.5,		// 5
+
+		-0.5,-0.5,0.5,		// 4
+		0.5,-0.5,0.5,		// 5
+		0.5,0.5,0.5,		// 6
+		-0.5,-0.5,0.5,		// 4
+		0.5,0.5,0.5,		// 6
+		-0.5,0.5,0.5,		// 7
+
+		-0.5,-0.5,-0.5,		// 0
+		0.5,-0.5,-0.5,		// 1
+		0.5,-0.5,0.5,		// 5
+		-0.5,-0.5,-0.5,		// 0
+		0.5,-0.5,0.5,		// 5
+		-0.5,-0.5,0.5		// 4
 };
 
-// lab1-1: Change the color of the triangle.
-GLfloat triangleColor[] =
-{
-	1.0f, 0.5f, 1.0f,
-	1.0f, 0.5f, 1.0f,
-	1.0f, 0.5f, 1.0f
+// lab1-4
+GLfloat cubeColor[36*3] = {
+		0.8, 0.0, 0.0,
+		0.8, 0.0, 0.0,
+		0.8, 0.0, 0.0,
+		0.8, 0.0, 0.0,
+		0.8, 0.0, 0.0,
+		0.8, 0.0, 0.0,
+
+		0.0, 0.8, 0.0,
+		0.0, 0.8, 0.0,
+		0.0, 0.8, 0.0,
+		0.0, 0.8, 0.0,
+		0.0, 0.8, 0.0,
+		0.0, 0.8, 0.0,
+
+		0.0, 0.0, 0.8,
+		0.0, 0.0, 0.8,
+		0.0, 0.0, 0.8,
+		0.0, 0.0, 0.8,
+		0.0, 0.0, 0.8,
+		0.0, 0.0, 0.8,
+
+		0.8, 0.0, 0.8,
+		0.8, 0.0, 0.8,
+		0.8, 0.0, 0.8,
+		0.8, 0.0, 0.8,
+		0.8, 0.0, 0.8,
+		0.8, 0.0, 0.8,
+
+		0.8, 0.8, 0.0,
+		0.8, 0.8, 0.0,
+		0.8, 0.8, 0.0,
+		0.8, 0.8, 0.0,
+		0.8, 0.8, 0.0,
+		0.8, 0.8, 0.0,
+
+		0.0, 0.8, 0.8,
+		0.0, 0.8, 0.8,
+		0.0, 0.8, 0.8,
+		0.0, 0.8, 0.8,
+		0.0, 0.8, 0.8,
+		0.0, 0.8, 0.8,
 };
-
-
-// lab1-2
-// Rotation around z-axis with 45 degrees
-/*
-GLfloat myMatrix[] = {    
-	0.7f, -0.7f, 0.0f, 0.0f,
-	0.7f, 0.7f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f
-};
- */
-
 
 // vertex array object
 unsigned int vertexArrayObjID;
@@ -82,7 +137,7 @@ void init(void)
 	//glClearColor(0.2,0.2,0.5,0);
 
 	// Assignment: Change the color of the background.
-	glClearColor(0.5,0.3,0.5,0);
+	glClearColor(0.0,0.0,0.0,0);
 
 	// lab1-5: turn on Z-buffer
 	glEnable(GL_DEPTH_TEST);
@@ -91,7 +146,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab1-3.vert", "lab1-3.frag");
+	program = loadShaders("lab1-5.vert", "lab1-5.frag");
 	printError("init shader");
 
 	// Upload geometry to the GPU:
@@ -108,14 +163,14 @@ void init(void)
 
 	// VBO for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 36*3*sizeof(GLfloat), cube, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
 
-	// Assignment lab1-1: Change the color of the triangle.
+	// lab1-4
 	// VBO for triangle color
 	glBindBuffer(GL_ARRAY_BUFFER, triangleColorBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), triangleColor, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 36*3*sizeof(GLfloat), cubeColor, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Triangle_Color"), 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Triangle_Color"));
 
@@ -152,7 +207,7 @@ void display(void)
     glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, rotationMatrix);
 
 	glBindVertexArray(vertexArrayObjID);	// Select VAO
-	glDrawArrays(GL_TRIANGLES, 0, 3);	// draw object
+	glDrawArrays(GL_TRIANGLES, 0, 36*3);	// draw object
 
 	printError("display");
 
@@ -169,7 +224,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     glutInitWindowSize (500, 500);
-	glutCreateWindow ("lab1-3");
+	glutCreateWindow ("lab1-4");
 	glutDisplayFunc(display);
 	init ();
 
