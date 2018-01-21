@@ -123,8 +123,8 @@ void display(void)
 	/*
     GLfloat rotationMatrix[] =
     {
-        cos(a), sin(a), 0.0f, 0.0f,
-        -sin(a), cos(a), 0.0f, 0.0f,
+        cos(a), -sin(a), 0.0f, 0.0f,
+        sin(a), cos(a), 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };

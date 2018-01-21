@@ -58,3 +58,11 @@ I also needed to create a VBO (vertex buffer object) for the color matrix, and l
 - Gouraud shading (shades are interpolated between vertices).
 - We could have used flat shading (same shading for the whole objects) as we did at the beginning of the lab.
 We could also have used Phong shading (the normal vector of the vertices is interpolated).
+
+## 5) Building a cube, visible surface detection
+
+### What problems did you encounter while building the cube?
+- How to rotate the cube, so that all sides are shown.
+
+### How do you change the facing of a polygon?
+By rotating around the x, y and z axis.
