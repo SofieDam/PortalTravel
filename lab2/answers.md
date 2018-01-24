@@ -1,0 +1,39 @@
+# Answers to questions in lab 2
+
+## 1) Procedural texture mapping
+
+### How are the textures coordinates mapped on the bunny? Can you see what geometry was used?
+
+- The file "bunnyplus.obj" contains some "vt", which are the texture coordinates of the vertices. 
+
+### What kind of procedural texture did you make?
+
+- Se sida 136 i boken, finns ett exempel om "Procedural texture". 
+
+## 2) Texture mapping
+
+### Can we modify how we access the texture? How?
+
+### Why can't we just pass the texture object to the shader? There is a specific reason for this, a limited resource. What?
+
+## 3) Projection
+
+### How did you move the bunny to get it in view?
+
+## 4) Viewing using the lookat function
+
+### Given a certain vector for v, is there some place you can't place the camera?
+
+## 5) Diffuse shading
+
+### Did you implement your light calculations in the vertex or fragment shader? So, which kind of shading did you implement?
+
+### Some geometry data must be vec4, others are just as well vec3's. Which ones, and why? How about vertices, light source, normal vectors...?
+
+## 6) Extra: Gouraud vs Phong
+
+### Was the difference big? If not, why?
+
+## 7) Building a scene + camera movement
+
+### If you rotate an object or rotate the camera, what matrices are affected?
