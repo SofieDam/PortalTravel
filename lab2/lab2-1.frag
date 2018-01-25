@@ -1,11 +1,11 @@
 #version 150
 
-in vec3 normal;
+in vec3 texcoord;
 out vec4 out_Color;
 
 void main(void)
 {
-	const vec3 light = vec3(0.6, 0.6, 0.6);
-	float shade = dot(normalize(normal), light);
-	out_Color = vec4(shade, shade, shade, 1.0);
+	float a = sin(texcoord.s*30)/2+0.5;
+    float b = sin(texcoord.t*30)/2+0.5;
+	out_Color = vec4(a, b, 1.0, 0.0);
 }

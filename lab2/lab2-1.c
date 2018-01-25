@@ -56,6 +56,7 @@ void init(void)
 	glGenBuffers(1, &bunnyVertexBufferObjID);
 	glGenBuffers(1, &bunnyIndexBufferObjID);
 	glGenBuffers(1, &bunnyNormalBufferObjID);
+	glGenBuffers(1, &bunnyTexCoordBufferObjID);
 	glBindVertexArray(bunnyVertexArrayObjID);
 
 
@@ -77,6 +78,15 @@ void init(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
     printError("init index");
+
+	if (m->texCoordArray != NULL)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, bunnyTexCoordBufferObjID);
+		glBufferData(GL_ARRAY_BUFFER, m->numVertices*2*sizeof(GLfloat), m->texCoordArray, GL_STATIC_DRAW);
+		glVertexAttribPointer(glGetAttribLocation(program, "in_Texture"), 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(glGetAttribLocation(program, "in_Texture"));
+
+	}
 
 	// End of upload of geometry
 }
