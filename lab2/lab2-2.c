@@ -7,6 +7,8 @@
 #include "GL_utilities.h"
 #include <math.h>
 #include "loadobj.h"
+#include "LoadTGA.h"
+
 
 
 // vertex array object
@@ -18,6 +20,9 @@ GLfloat b = 0;
 
 // Reference to shader program
 GLuint program;
+
+GLuint myTex;
+
 
 void OnTimer(int value)
 {
@@ -48,7 +53,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab2-1.vert", "lab2-1.frag");
+	program = loadShaders("lab2-2.vert", "lab2-2.frag");
 	printError("init shader");
 
 	// Upload geometry to the GPU:
@@ -90,6 +95,11 @@ void init(void)
 
 	}
 	printError("init texture coordinates");
+
+	glBindTexture(GL_TEXTURE_2D, myTex);
+	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); // Texture unit 0
+	LoadTGATextureSimple("maskros512.tga", &myTex);
+
 
 	// End of upload of geometry
 }
