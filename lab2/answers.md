@@ -27,6 +27,9 @@ But you could see a part of it in the upper part of the screen.
 
 ### Given a certain vector for v, is there some place you can't place the camera?
 
+- Not in 0,0,0.
+- Not if make a camera placement outside the screen coordinates.
+
 ## 5) Diffuse shading
 
 ### Did you implement your light calculations in the vertex or fragment shader? So, which kind of shading did you implement?

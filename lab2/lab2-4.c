@@ -65,7 +65,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab2-3.vert", "lab2-3.frag");
+	program = loadShaders("lab2-4.vert", "lab2-4.frag");
 	printError("init shader");
 
 	// Upload geometry to the GPU:
@@ -126,18 +126,27 @@ void display(void)
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-	mat4 rot, trans, total;
+	mat4 rot, trans, total, worldToView;
 
 	a += 0.01;
+
+	/*
+	 * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,
+	 * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
+	 * 				  GLdouble upX,  GLdouble upY,  GLdouble upZ);
+	 */
+	worldToView = lookAt(0,0,6, 0,0,0, 0,1,0);
 
 	rot = Ry(a);
 	trans = T(1, 0, -2);
 	total = Mult(rot, trans);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, worldToView.m);
 
 
-    glBindVertexArray(bunnyVertexArrayObjID);
+
+	glBindVertexArray(bunnyVertexArrayObjID);
     glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);
 
 	printError("display");
