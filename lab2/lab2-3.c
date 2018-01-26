@@ -23,12 +23,12 @@ GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(ri
 								  0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
 								  0.0f, 0.0f, -1.0f, 0.0f };
 
+
 // vertex array object
 unsigned int bunnyVertexArrayObjID;
 Model *m;
 
 GLfloat a = 0;
-GLfloat b = 0;
 
 // Reference to shader program
 GLuint program;
@@ -126,38 +126,15 @@ void display(void)
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-    a += 0.01;
-    b += 0.02;
+	mat4 rot, trans, total;
 
-	GLfloat rotationMatrixX[] =
-	{
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cos(b), -sin(b), 0.0f,
-		0.0f, sin(b), cos(b), 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	};
+	a += 0.01;
 
-	GLfloat rotationMatrixY[] =
-	{
-		cos(a), 0.0f, sin(a), 0.0f,
-		 0.0f, 1.0f, 0.0f, 0.0f,
-		 -sin(a), 0.0f, cos(a), 0.0f,
-		 0.0f, 0.0f, 0.0f, 1.0f
-	};
+	rot = Ry(a);
+	trans = T(1, 0, -2);
+	total = Mult(rot, trans);
 
-	GLfloat rotationMatrixZ[] =
-	{
-		cos(b), -sin(b), 0.0f, 0.0f,
-		sin(b), cos(b), 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	};
-
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrixX"), 1, GL_TRUE, rotationMatrixX);
-    glUniformMatrix4fv(glGetUniformLocation(program, "myMatrixY"), 1, GL_TRUE, rotationMatrixY);
-	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrixZ"), 1, GL_TRUE, rotationMatrixZ);
-
+	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 
 
     glBindVertexArray(bunnyVertexArrayObjID);

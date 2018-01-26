@@ -19,6 +19,9 @@
 ## 3) Projection
 
 ### How did you move the bunny to get it in view?
+- At the beginning, the bunny was placed outside the window coordinates.
+But you could see a part of it in the upper part of the screen.
+- To get the bunny in view, we didn't do any translation on the Y-axis (kept it zero).
 
 ## 4) Viewing using the lookat function
 
