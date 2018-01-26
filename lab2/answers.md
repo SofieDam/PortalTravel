@@ -33,8 +33,17 @@ But you could see a part of it in the upper part of the screen.
 ## 5) Diffuse shading
 
 ### Did you implement your light calculations in the vertex or fragment shader? So, which kind of shading did you implement?
+- In the fragment shader.
+- Phong shading with a specular part.
 
 ### Some geometry data must be vec4, others are just as well vec3's. Which ones, and why? How about vertices, light source, normal vectors...?
+- The normal matrix, surface matrix, light, reflected light direction and eye direction must be of vec3.
+To use linear algebraic operations.
+- The gl_position and out_color must be of vec4.
+gl_position needs x, y, z positions + clipping.
+The clipping part plays its part while linear algebra transformations are applied to the position.
+It is set to 1.0 by default.
+The out_color needs R,G,B values + transparency. 
 
 ## 6) Extra: Gouraud vs Phong
 
