@@ -12,5 +12,6 @@ void main(void)
 {
     texCoord = in_Texture;
 
+    // lab2-4
 	gl_Position = projectionMatrix * camMatrix * mdlMatrix * vec4(in_Position, 1.0);
 }

@@ -34,6 +34,7 @@ void init(void)
    	 unsigned int bunnyNormalBufferObjID;
 	 unsigned int bunnyTexCoordBufferObjID;
 
+	// lab2-1
    	 m = LoadModel("bunnyplus.obj");
 
 	dumpInfo();
@@ -80,6 +81,7 @@ void init(void)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
     printError("init index");
 
+	// lab2-1
 	// VBO for texture coordinates
 	if (m->texCoordArray != NULL)
 	{

@@ -56,7 +56,7 @@ void init(void)
 	program = loadShaders("lab2-7.vert", "lab2-7.frag");
 	printError("init shader");
 
-
+	// lab2-7
     // Upload geometry to the GPU:
     bunny = LoadModelPlus("bunnyplus.obj");
     teapot =  LoadModelPlus("teapot.obj");
@@ -74,6 +74,8 @@ void display(void)
 	mat4 rot, trans, scale, total, worldToView;
 
 	a += 0.01;
+
+	// lab2-7
 
 	/*
 	 * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,

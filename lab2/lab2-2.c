@@ -96,7 +96,8 @@ void init(void)
 	}
 	printError("init texture coordinates");
 
-	glBindTexture(GL_TEXTURE_2D, myTex);
+	// lab2-2
+	glBindTexture(GL_TEXTURE_2D, myTex);	// makes a texture the current one
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); // Texture unit 0
 	LoadTGATextureSimple("maskros512.tga", &myTex);
 
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     glutInitWindowSize (500, 500);
-	glutCreateWindow ("lab2-1");
+	glutCreateWindow ("lab2-2");
 	glutDisplayFunc(display);
 	init ();
 

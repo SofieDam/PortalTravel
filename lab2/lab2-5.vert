@@ -11,6 +11,7 @@ out vec3 ex_Surface;
 void main(void)
 {
 
+    // lab2-5
     ex_Normal = inverse(transpose(mat3(camMatrix * mdlMatrix))) * in_Normal; // Phong, normal transformation
     ex_Surface = vec3(camMatrix * mdlMatrix * vec4(in_Position, 1.0));
 

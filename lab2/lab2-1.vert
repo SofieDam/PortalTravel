@@ -10,6 +10,7 @@ out vec3 texcoord;
 
 void main(void)
 {
+    // lab2-1
     texcoord = in_Texture;
 
 	gl_Position = myMatrixX * myMatrixY * myMatrixZ * vec4(in_Position, 1.0);

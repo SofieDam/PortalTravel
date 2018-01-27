@@ -130,6 +130,7 @@ void display(void)
 
 	a += 0.01;
 
+	// lab2-4
 	/*
 	 * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,
 	 * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
@@ -142,6 +143,8 @@ void display(void)
 	total = Mult(rot, trans);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
+
+	// lab2-4
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, worldToView.m);
 
 
@@ -164,7 +167,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     glutInitWindowSize (500, 500);
-	glutCreateWindow ("lab2-1");
+	glutCreateWindow ("lab2-4");
 	glutDisplayFunc(display);
 	init ();
 

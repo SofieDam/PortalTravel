@@ -6,15 +6,16 @@ out vec4 out_Color;
 
 void main(void)
 {
-    const vec3 light = vec3(0.58, 0.58, 0.58);
+    // lab2-5
 
+    const vec3 light = vec3(0.58, 0.58, 0.58);
     float diffuse, specular, shade;
 
-    // Diffuse
+    // Diffuse: Incoming light produces same intensity in all directions.
     diffuse = dot(normalize(ex_Normal), light);
     diffuse = max(0.0, diffuse); // No negative light
 
-    // Specular
+    // Specular: Incoming light produces higher intensity around the mirroring angle.
     vec3 reflectedLightDirection = reflect(-light, normalize(ex_Normal));
     vec3 eyeDirection = normalize(-ex_Surface); // View direction
     specular = dot(reflectedLightDirection, eyeDirection);
