@@ -1,3 +1,6 @@
+/*
+ * Use -> for pointers; use . for objects.
+ */
 #ifdef __APPLE__
 	#include <OpenGL/gl3.h>
 	// Linking hint for Lightweight IDE
@@ -24,10 +27,11 @@ GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(ri
 								  0.0f, 0.0f, -1.0f, 0.0f };
 
 
+GLfloat a = 0;
+
 // Reference to shader program
 GLuint program;
 
-// lab3-1
 // Page 187 in the coursebook
 struct GraphicsEntity
 {
@@ -37,8 +41,8 @@ struct GraphicsEntity
     mat4 rotation;
     mat4 scale;
 
-    struct GraphicsEntity *child;
-    struct GraphicsEntity *next;
+    struct GraphicsEntity *child;   // children of this node
+    struct GraphicsEntity *next;    // children of the same parent as the current node
 
 };
 
@@ -52,19 +56,76 @@ void OnTimer(int value)
 }
 
 
-void initWindmill(){
 
-    Windmill.name = strdup("windmill");
+struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
+
+    struct GraphicsEntity *blade;
+    blade = malloc(sizeof(struct GraphicsEntity));
+    blade->name = strdup("blade");
+    blade->m = LoadModelPlus("windmill/blade.obj");
+    blade->translation = Mult(t,T(0,1.8,0.95));
+    blade->rotation = r;
+    blade->scale = Mult(s,S(0.8,0.8,0.8));
+
+    blade->child = NULL;
+
+    printf("bladeNr: %i\n",bladeNr);
+    if(bladeNr != 3){
+        bladeNr++;
+        mat4 bladeRotation = Mult(r,Rx(asin(1)));
+        blade->next = windmillBlades(t, bladeRotation, s, bladeNr);
+    }
+    else {
+        blade->next = NULL;
+    }
+
+    return blade;
+}
+
+struct GraphicsEntity *windmillBalcony(mat4 t, mat4 r, mat4 s){
+    struct GraphicsEntity *roof = malloc(sizeof(struct GraphicsEntity));
+    roof->name = strdup("balcony");
+    roof->m = LoadModelPlus("windmill/windmill-balcony.obj");
+    roof->translation = t;
+    roof->rotation = r;
+    roof->scale = s;
+
+    roof->child = NULL;
+    roof->next = windmillBlades(t, r, s, 0);
+
+    return roof;
+}
+
+struct GraphicsEntity *windmillRoof(mat4 t, mat4 r, mat4 s){
+    struct GraphicsEntity *roof = malloc(sizeof(struct GraphicsEntity));
+    roof->name = strdup("roof");
+    roof->m = LoadModelPlus("windmill/windmill-roof.obj");
+    roof->translation = t;
+    roof->rotation = r;
+    roof->scale = s;
+
+    roof->child = NULL;
+    roof->next = windmillBalcony(t, r, s);
+
+    return roof;
+}
+
+void windmill(){
+
+    Windmill.name = strdup("walls");
     Windmill.m = LoadModelPlus("windmill/windmill-walls.obj");
     Windmill.translation = T(0, -1.5, 0);
-    Windmill.rotation = Ry(0);
+    Windmill.rotation = Ry(asin(-1));
+    //Windmill.rotation = Ry(0);
     Windmill.scale = S(0.2, 0.2, 0.2);
 
-    Windmill.child = NULL;
+    Windmill.child = windmillRoof(Windmill.translation, Windmill.rotation, Windmill.scale);
     Windmill.next = NULL;
 
     printError("init windmill");
 }
+
+
 
 
 void init(void)
@@ -83,20 +144,23 @@ void init(void)
 	program = loadShaders("lab3-1.vert", "lab3-1.frag");
 	printError("init shader");
 
-    // lab3-1
-    initWindmill();
-    printError("initWindmill()");
+    windmill();
+    printError("windmill()");
 
 }
 
 void draw(struct GraphicsEntity entity)
 {
+
+    a += 0.005;
+
     /*
  * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,
  * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
  * 				  GLdouble upX,  GLdouble upY,  GLdouble upZ);
  */
-    mat4 worldToView = lookAt(0,0,8, 0,0,0, 0,1,0);
+    //mat4 worldToView = lookAt(0,0,8, 0,0,0, 0,1,0);
+    mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
 
     mat4 total = Mult(Mult(entity.translation, entity.rotation), entity.scale);
 
@@ -106,6 +170,35 @@ void draw(struct GraphicsEntity entity)
 
     DrawModel(entity.m, program, "in_Position", "in_Normal", NULL);
 
+    if(entity.child!=NULL){
+        //printf("child: %s\n", entity.child->name);
+        draw(*entity.child);
+    }
+    if(entity.next!=NULL){
+        //printf("next: %s\n", entity.next->name);
+        draw(*entity.next);
+    }
+
+}
+
+void updateWindmill(struct GraphicsEntity entity){
+
+    float bladeAngle = 0.01;
+
+    if(entity.child != NULL){
+        if(strcmp(entity.child->name,"blade")){
+            printf("strcmp(entity.child->name,\"blade\") \n");
+            //entity.child->rotation = Mult(entity.rotation, bladeAngle);
+        }
+        updateWindmill(*entity.child);
+    }
+    if(entity.next!=NULL){
+        if(strcmp(entity.next->name,"blade")){
+            printf("strcmp(entity.next->name,\"blade\") \n");
+            //entity.next->rotation = Mult(entity.rotation, bladeAngle);
+        }
+        updateWindmill(*entity.next);
+    }
 }
 
 void display(void)
@@ -115,8 +208,8 @@ void display(void)
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-    // lab3-1
     draw(Windmill);
+    updateWindmill(Windmill);
 
 	glutSwapBuffers();
 }
@@ -135,7 +228,6 @@ int main(int argc, char *argv[])
 	glutDisplayFunc(display);
 	init ();
 
-    // lab1-3
     glutTimerFunc(20, &OnTimer, 0);
 
 	glutMainLoop();
