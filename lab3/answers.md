@@ -16,6 +16,14 @@ So to change the placement for all objects, you only need to change the placemen
 ## 2) Manual viewing controls
 
 ### What kind of control did you implement?
+Following controls have been implemented:
+ - Up arrow - move the camera upwards
+ - Down arrow - move the camera downwards
+ - Left arrow - rotate the camera to the left around the object
+ - Right arrow - rotate the camera to the right around the object
+ - "z" - zoom in
+ - "x" - zoom out
+ - "esc" - exit/close the window
 
 ### Can you make this kind of control in some other way than manipulating a "look-at" matrix?
 
