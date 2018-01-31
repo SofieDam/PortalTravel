@@ -28,6 +28,8 @@ GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(ri
 
 
 GLfloat a = 0;
+GLfloat bladeAngle = 0;
+
 
 // Reference to shader program
 GLuint program;
@@ -58,9 +60,7 @@ void OnTimer(int value)
 
 
 struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
-
-    struct GraphicsEntity *blade;
-    blade = malloc(sizeof(struct GraphicsEntity));
+    struct GraphicsEntity *blade = malloc(sizeof(struct GraphicsEntity));
     blade->name = strdup("blade");
     blade->m = LoadModelPlus("windmill/blade.obj");
     blade->translation = Mult(t,T(0,1.8,0.95));
@@ -69,7 +69,6 @@ struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
 
     blade->child = NULL;
 
-    printf("bladeNr: %i\n",bladeNr);
     if(bladeNr != 3){
         bladeNr++;
         mat4 bladeRotation = Mult(r,Rx(asin(1)));
@@ -153,14 +152,22 @@ void draw(struct GraphicsEntity entity)
 {
 
     a += 0.005;
+    bladeAngle += 0.008;
+
 
     /*
  * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,
  * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
  * 				  GLdouble upX,  GLdouble upY,  GLdouble upZ);
  */
-    //mat4 worldToView = lookAt(0,0,8, 0,0,0, 0,1,0);
-    mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
+    mat4 worldToView = lookAt(0,0,8, 0,0,0, 0,1,0);
+    //mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
+
+    // Add rotation to the blades
+    if(!strcmp(entity.name,"blade")) {
+        mat4 bladeRotation = Mult(entity.rotation, Rx(bladeAngle));
+        entity.rotation = bladeRotation;
+    }
 
     mat4 total = Mult(Mult(entity.translation, entity.rotation), entity.scale);
 
@@ -170,12 +177,10 @@ void draw(struct GraphicsEntity entity)
 
     DrawModel(entity.m, program, "in_Position", "in_Normal", NULL);
 
-    if(entity.child!=NULL){
-        //printf("child: %s\n", entity.child->name);
+    if(entity.child != NULL){
         draw(*entity.child);
     }
-    if(entity.next!=NULL){
-        //printf("next: %s\n", entity.next->name);
+    if(entity.next != NULL){
         draw(*entity.next);
     }
 
@@ -183,20 +188,16 @@ void draw(struct GraphicsEntity entity)
 
 void updateWindmill(struct GraphicsEntity entity){
 
-    float bladeAngle = 0.01;
+
+    if(strcmp(entity.name,"blade")) {
+        mat4 bladeRotation = Mult(entity.rotation, Rx(sin(bladeAngle)));
+        entity.rotation = bladeRotation;
+    }
 
     if(entity.child != NULL){
-        if(strcmp(entity.child->name,"blade")){
-            printf("strcmp(entity.child->name,\"blade\") \n");
-            //entity.child->rotation = Mult(entity.rotation, bladeAngle);
-        }
         updateWindmill(*entity.child);
     }
-    if(entity.next!=NULL){
-        if(strcmp(entity.next->name,"blade")){
-            printf("strcmp(entity.next->name,\"blade\") \n");
-            //entity.next->rotation = Mult(entity.rotation, bladeAngle);
-        }
+    if(entity.next!= NULL){
         updateWindmill(*entity.next);
     }
 }
@@ -209,7 +210,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
     draw(Windmill);
-    updateWindmill(Windmill);
+    //updateWindmill(Windmill);
 
 	glutSwapBuffers();
 }
