@@ -2,11 +2,16 @@
 
 ## 1) Hierarcical modelling, the windmill
 
-### How can you get all four blades to rotate with just one time-dependent rotation matrix? 
+### How can you get all four blades to rotate with just one time-dependent rotation matrix?
+All objects (including all 4 blades) in the hierarchy are updated and redrawn in every frame update.
 
 ### How do you make the wings follow the body's movements?
+The wings uses the same movements as the body + some extra rotation.
 
 ### You may have to tweak some numbers to make the placement right. How can you do that without making a lot of small changes in numbers in the code followed by recompilations?
+We set the placements once for the parent.
+All its children uses the same placement.
+So to change the placement for all objects, you only need to change the placement once (for the parent).
 
 ## 2) Manual viewing controls
 
