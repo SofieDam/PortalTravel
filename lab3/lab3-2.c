@@ -27,8 +27,11 @@ GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(ri
 								  0.0f, 0.0f, -1.0f, 0.0f };
 
 
+float height=0, angle=0, zoom=8;
+
 GLfloat a = 0;
 GLfloat bladeAngle = 0;
+
 
 
 // Reference to shader program
@@ -50,6 +53,41 @@ struct GraphicsEntity
 
 struct GraphicsEntity Windmill;
 
+
+void keyboard(unsigned char c, int x, int y)
+{
+    switch (c)
+    {
+        case 27:
+            exit(0);
+            printf("case 27\n");
+            break;
+        case GLUT_KEY_UP:
+            height += 0.1;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_DOWN:
+            height -= 0.1;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_LEFT:
+            angle += 0.1;
+            glutPostRedisplay();
+            break;
+        case GLUT_KEY_RIGHT:
+            angle -= 0.1;
+            glutPostRedisplay();
+            break;
+        case 'z':
+            zoom -= 0.5;
+            glutPostRedisplay();
+            break;
+        case 'x':
+            zoom += 0.5;
+            glutPostRedisplay();
+            break;
+    }
+}
 
 void OnTimer(int value)
 {
@@ -140,7 +178,7 @@ void init(void)
     printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab3-1.vert", "lab3-1.frag");
+	program = loadShaders("lab3-2.vert", "lab3-2.frag");
 	printError("init shader");
 
     windmill();
@@ -160,7 +198,7 @@ void draw(struct GraphicsEntity entity)
  * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
  * 				  GLdouble upX,  GLdouble upY,  GLdouble upZ);
  */
-    mat4 worldToView = lookAt(0,0,8, 0,0,0, 0,1,0);
+    mat4 worldToView = lookAt(zoom*sin(angle),zoom*height,zoom*cos(angle), 0,0,0, 0,1,0);
     //mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
 
     // Add rotation to the blades
@@ -224,13 +262,15 @@ int main(int argc, char *argv[])
 	// Set up Z-buffer
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-  glutInitWindowSize (500, 500);
-	glutCreateWindow ("lab3-2");
-	glutDisplayFunc(display);
-	init ();
+    glutKeyboardFunc(keyboard);
+
+    glutInitWindowSize (500, 500);
+    glutCreateWindow ("lab3-2");
+    glutDisplayFunc(display);
+    init ();
 
     glutTimerFunc(20, &OnTimer, 0);
 
-	glutMainLoop();
-	return 0;
+    glutMainLoop();
+    return 0;
 }
