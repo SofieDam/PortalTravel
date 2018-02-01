@@ -37,6 +37,8 @@ GLfloat bladeAngle = 0;
 // Reference to shader program
 GLuint program;
 
+GLuint myTex;
+
 // Page 187 in the coursebook
 struct GraphicsEntity
 {
@@ -51,7 +53,7 @@ struct GraphicsEntity
 
 };
 
-struct GraphicsEntity Windmill;
+struct GraphicsEntity Windmill, Skybox, Ground;
 
 
 void keyboard(unsigned char c, int x, int y)
@@ -95,6 +97,32 @@ void OnTimer(int value)
 	glutTimerFunc(20, &OnTimer, value);
 }
 
+
+void ground() {
+    Ground.name = strdup("ground");
+    Ground.m = LoadModelPlus("ground.obj");
+    Ground.translation = T(0, 0, 0);
+    Ground.rotation = Ry(0);
+    Ground.scale = S(1.0, 1.0, 1.0);
+
+    Skybox.child = NULL;
+    Skybox.next = NULL;
+
+    printError("init ground");
+}
+
+void skybox() {
+    Skybox.name = strdup("skybox");
+    Skybox.m = LoadModelPlus("skybox.obj");
+    Skybox.translation = T(0, 0, 0);
+    Skybox.rotation = Ry(0);
+    Skybox.scale = S(1.0, 1.0, 1.0);
+
+    Skybox.child = NULL;
+    Skybox.next = NULL;
+
+    printError("init skybox");
+}
 
 
 struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
@@ -165,24 +193,30 @@ void windmill(){
 
 
 
+
 void init(void)
 {
 	dumpInfo();
 
 	// Assignment: Change the color of the background.
-	glClearColor(0.4,0.6,0.8,0);
+	//glClearColor(0.4,0.6,0.8,0);
+    glClearColor(0.0,0.0,0.0,0);
 
 	// Turn on Z-buffer
-	glEnable(GL_DEPTH_TEST);
-	//glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
     printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab3-2.vert", "lab3-2.frag");
+	program = loadShaders("lab3-3.vert", "lab3-3.frag");
 	printError("init shader");
 
-    windmill();
-    printError("windmill()");
+    //windmill();
+    skybox();
+
+    glBindTexture(GL_TEXTURE_2D, myTex);	// makes a texture the current one
+    glUniform1i(glGetUniformLocation(program, "texUnit"), 0); // Texture unit 0
+    LoadTGATextureSimple("SkyBox512.tga", &myTex);
 
 }
 
@@ -213,7 +247,7 @@ void draw(struct GraphicsEntity entity)
     glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, worldToView.m);
     glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 
-    DrawModel(entity.m, program, "in_Position", "in_Normal", NULL);
+    DrawModel(entity.m, program, "in_Position", "in_Normal", "in_Tex_Coord");
 
     if(entity.child != NULL){
         draw(*entity.child);
@@ -231,7 +265,8 @@ void display(void)
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-    draw(Windmill);
+    //draw(Windmill);
+    draw(Skybox);
 
 	glutSwapBuffers();
 }
@@ -248,7 +283,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(keyboard);
 
     glutInitWindowSize (500, 500);
-    glutCreateWindow ("lab3-2");
+    glutCreateWindow ("lab3-3");
     glutDisplayFunc(display);
     init ();
 
