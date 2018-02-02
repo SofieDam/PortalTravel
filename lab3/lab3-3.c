@@ -35,9 +35,7 @@ GLfloat bladeAngle = 0;
 
 
 // Reference to shader program
-GLuint program;
-
-GLuint myTex;
+GLuint program, lightProgram, sTex, gTex, cTex;
 
 // Page 187 in the coursebook
 struct GraphicsEntity
@@ -47,6 +45,8 @@ struct GraphicsEntity
     mat4 translation;
     mat4 rotation;
     mat4 scale;
+    GLuint texture;
+    GLuint program;
 
     struct GraphicsEntity *child;   // children of this node
     struct GraphicsEntity *next;    // children of the same parent as the current node
@@ -100,10 +100,12 @@ void OnTimer(int value)
 
 void ground() {
     Ground.name = strdup("ground");
-    Ground.m = LoadModelPlus("ground.obj");
-    Ground.translation = T(0, 0, 0);
+    Ground.m = LoadModelPlus("cubeplus.obj");
+    Ground.translation = T(0, -1.5, 0);
     Ground.rotation = Ry(0);
-    Ground.scale = S(1.0, 1.0, 1.0);
+    Ground.scale = S(50, 0.01, 50);
+    Ground.texture = gTex;
+    Ground.program = program;
 
     Skybox.child = NULL;
     Skybox.next = NULL;
@@ -117,6 +119,8 @@ void skybox() {
     Skybox.translation = T(0, 0, 0);
     Skybox.rotation = Ry(0);
     Skybox.scale = S(1.0, 1.0, 1.0);
+    Skybox.texture = sTex;
+    Skybox.program = program;
 
     Skybox.child = NULL;
     Skybox.next = NULL;
@@ -132,6 +136,8 @@ struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
     blade->translation = Mult(t,T(0,1.8,0.95));
     blade->rotation = r;
     blade->scale = Mult(s,S(0.8,0.8,0.8));
+    blade->texture = cTex;
+    blade->program = lightProgram;
 
     blade->child = NULL;
 
@@ -148,17 +154,20 @@ struct GraphicsEntity *windmillBlades(mat4 t, mat4 r, mat4 s, int bladeNr){
 }
 
 struct GraphicsEntity *windmillBalcony(mat4 t, mat4 r, mat4 s){
-    struct GraphicsEntity *roof = malloc(sizeof(struct GraphicsEntity));
-    roof->name = strdup("balcony");
-    roof->m = LoadModelPlus("windmill/windmill-balcony.obj");
-    roof->translation = t;
-    roof->rotation = r;
-    roof->scale = s;
+    struct GraphicsEntity *balcony = malloc(sizeof(struct GraphicsEntity));
+    balcony->name = strdup("balcony");
+    balcony->m = LoadModelPlus("windmill/windmill-balcony.obj");
+    balcony->translation = t;
+    balcony->rotation = r;
+    balcony->scale = s;
+    balcony->texture = cTex;
+    balcony->program = lightProgram;
 
-    roof->child = NULL;
-    roof->next = windmillBlades(t, r, s, 0);
 
-    return roof;
+    balcony->child = NULL;
+    balcony->next = windmillBlades(t, r, s, 0);
+
+    return balcony;
 }
 
 struct GraphicsEntity *windmillRoof(mat4 t, mat4 r, mat4 s){
@@ -168,6 +177,9 @@ struct GraphicsEntity *windmillRoof(mat4 t, mat4 r, mat4 s){
     roof->translation = t;
     roof->rotation = r;
     roof->scale = s;
+    roof->texture = cTex;
+    roof->program = lightProgram;
+
 
     roof->child = NULL;
     roof->next = windmillBalcony(t, r, s);
@@ -183,6 +195,8 @@ void windmill(){
     Windmill.rotation = Ry(asin(-1));
     //Windmill.rotation = Ry(0);
     Windmill.scale = S(0.2, 0.2, 0.2);
+    Windmill.texture = cTex;
+    Windmill.program = lightProgram;
 
     Windmill.child = windmillRoof(Windmill.translation, Windmill.rotation, Windmill.scale);
     Windmill.next = NULL;
@@ -191,40 +205,13 @@ void windmill(){
 }
 
 
-
-
-
-void init(void)
-{
-	dumpInfo();
-
-	// Assignment: Change the color of the background.
-	//glClearColor(0.4,0.6,0.8,0);
-    glClearColor(0.0,0.0,0.0,0);
-
-	// Turn on Z-buffer
-	//glEnable(GL_DEPTH_TEST);
-	glDisable(GL_DEPTH_TEST);
-    printError("GL inits");
-
-	// Load and compile shader
-	program = loadShaders("lab3-3.vert", "lab3-3.frag");
-	printError("init shader");
-
-    //windmill();
-    skybox();
-
-    glBindTexture(GL_TEXTURE_2D, myTex);	// makes a texture the current one
-    glUniform1i(glGetUniformLocation(program, "texUnit"), 0); // Texture unit 0
-    LoadTGATextureSimple("SkyBox512.tga", &myTex);
-
-}
-
 void draw(struct GraphicsEntity entity)
 {
 
     a += 0.005;
     bladeAngle += 0.008;
+
+    glUseProgram(entity.program);
 
 
     /*
@@ -235,6 +222,19 @@ void draw(struct GraphicsEntity entity)
     mat4 worldToView = lookAt(zoom*sin(angle),zoom*height,zoom*cos(angle), 0,0,0, 0,1,0);
     //mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
 
+    // center the skybox around the camera (on origin in view coordinates)
+    // zero out the translation part
+    // see page 142 in the course book
+    if (!strcmp(entity.name,"skybox")) {
+        worldToView.m[3] = 0;
+        worldToView.m[7] = 0;
+        worldToView.m[11] = 0;
+
+        // Filter with GL_CLAMP_TO_EDGE to avoid edge artifacts
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
     // Add rotation to the blades
     if(!strcmp(entity.name,"blade")) {
         mat4 bladeRotation = Mult(entity.rotation, Rx(bladeAngle));
@@ -243,11 +243,19 @@ void draw(struct GraphicsEntity entity)
 
     mat4 total = Mult(Mult(entity.translation, entity.rotation), entity.scale);
 
-    glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-    glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, worldToView.m);
-    glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
+    glUniformMatrix4fv(glGetUniformLocation(entity.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+    glUniformMatrix4fv(glGetUniformLocation(entity.program, "camMatrix"), 1, GL_TRUE, worldToView.m);
+    glUniformMatrix4fv(glGetUniformLocation(entity.program, "mdlMatrix"), 1, GL_TRUE, total.m);
 
-    DrawModel(entity.m, program, "in_Position", "in_Normal", "in_Tex_Coord");
+    glBindTexture(GL_TEXTURE_2D, entity.texture);	// makes a texture the current one
+    glUniform1i(glGetUniformLocation(entity.program, "texUnit"), 0); // Texture unit 0
+
+    if (!strcmp(entity.name,"skybox") || !strcmp(entity.name,"ground")) {
+        DrawModel(entity.m, entity.program, "in_Position", NULL, "in_Tex_Coord");
+    }
+    else {
+        DrawModel(entity.m, entity.program, "in_Position", "in_Normal", "in_Tex_Coord");
+    }
 
     if(entity.child != NULL){
         draw(*entity.child);
@@ -258,6 +266,8 @@ void draw(struct GraphicsEntity entity)
 
 }
 
+
+
 void display(void)
 {
 	printError("pre display");
@@ -265,10 +275,49 @@ void display(void)
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
-    //draw(Windmill);
+    // ------------------- Skybox -------------------
+    // Turn off Z-buffer
+    glDisable(GL_DEPTH_TEST);
+
     draw(Skybox);
 
+    // Turn on Z-buffer
+    glEnable(GL_DEPTH_TEST);
+    // --------------------------------------------
+
+
+    draw(Ground);
+    draw(Windmill);
+
 	glutSwapBuffers();
+}
+
+void init(void)
+{
+    dumpInfo();
+
+    // Assignment: Change the color of the background.
+    //glClearColor(0.4,0.6,0.8,0);
+    glClearColor(0.0,0.0,0.0,0);
+
+    printError("GL inits");
+
+    // Load and compile shader
+    program = loadShaders("lab3-3.vert", "lab3-3.frag");
+    lightProgram = loadShaders("lab3-3-light.vert", "lab3-3-light.frag");
+    printError("init shader");
+
+    // Load textures
+    LoadTGATextureSimple("grass.tga", &gTex);
+    LoadTGATextureSimple("SkyBox512.tga", &sTex);
+    LoadTGATextureSimple("conc.tga", &cTex);
+    printError("load textures");
+
+    // Load objects
+    ground();
+    windmill();
+    skybox();
+
 }
 
 
