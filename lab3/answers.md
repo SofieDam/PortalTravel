@@ -52,7 +52,9 @@ The result to this is that the background will be shown in the edges of the grou
 ### How do you generate a vector from the surface to the eye?
 By taking the eye position (camera position) minus the surface position. 
 
-eyeDirection = normalize(eyePosition-ex_Surface)
+```c
+eyeDirection = normalize(eyePosition-ex_Surface);
+```
 
 ### Which vectors need renormalization in the fragment shader?
 - View/eye direction
@@ -62,5 +64,11 @@ eyeDirection = normalize(eyePosition-ex_Surface)
 ## 5) Multitexturing
 
 ### How did you choose to combine the texture colour and the lighting colour?
+By multiplication. 
+
+```c
+out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
+```
 
 ### How did you choose to combine the two textures?
+By multiplication. 

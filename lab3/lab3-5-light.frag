@@ -2,14 +2,17 @@
 
 in vec3 ex_Normal; // Phong
 in vec3 ex_Surface; // Phong (specular)
+in vec2 ex_Tex_Coord;
 
 uniform sampler2D texUnit;
+uniform sampler2D texUnit2;
 
 uniform vec3 lightSourcesDirPosArr[4];
 uniform vec3 lightSourcesColorArr[4];
 uniform float specularExponent[4];
 uniform bool isDirectional[4];
 uniform vec3 eyePosition;
+
 
 out vec4 out_Color;
 
@@ -54,6 +57,11 @@ void main(void)
         specular += specularStrength * lightSourcesColorArr[i];
     }
 
-    shade = diffuse + specular;
-    out_Color = vec4(shade, 1.0);
+    shade = 0.7*diffuse + specular;
+
+    out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
+    //out_Color = texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
+
+    //out_Color = vec4(shade, 1.0) * (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
+   //out_Color = (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
 }

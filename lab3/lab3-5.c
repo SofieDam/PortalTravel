@@ -22,7 +22,7 @@
 
 
 // Reference to shader program
-GLuint program, lightProgram, sTex, gTex, cTex;
+GLuint program, lightProgram, sTex, gTex, cTex, multiTex;
 
 
 // Modified projection matrix, see p.59 in course book
@@ -265,15 +265,22 @@ void draw(struct GraphicsEntity entity)
     glUniformMatrix4fv(glGetUniformLocation(entity.program, "camMatrix"), 1, GL_TRUE, worldToView.m);
     glUniformMatrix4fv(glGetUniformLocation(entity.program, "mdlMatrix"), 1, GL_TRUE, total.m);
 
-    glBindTexture(GL_TEXTURE_2D, entity.texture);	// makes a texture the current one
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, entity.texture);    // makes a texture the current one
     glUniform1i(glGetUniformLocation(entity.program, "texUnit"), 0); // Texture unit 0
 
     if (!strcmp(entity.name,"skybox") || !strcmp(entity.name,"ground")) {
         DrawModel(entity.m, entity.program, "in_Position", NULL, "in_Tex_Coord");
     }
     else {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, multiTex);
+        glUniform1i(glGetUniformLocation(entity.program, "texUnit2"), 1);
+
         DrawModel(entity.m, entity.program, "in_Position", "in_Normal", "in_Tex_Coord");
     }
+
 
     if(entity.child != NULL){
         draw(*entity.child);
@@ -321,14 +328,15 @@ void init(void)
     printError("GL inits");
 
     // Load and compile shader
-    program = loadShaders("lab3-4.vert", "lab3-4.frag");
-    lightProgram = loadShaders("lab3-4-light.vert", "lab3-4-light.frag");
+    program = loadShaders("lab3-5.vert", "lab3-5.frag");
+    lightProgram = loadShaders("lab3-5-light.vert", "lab3-5-light.frag");
     printError("init shader");
 
     // Load textures
     LoadTGATextureSimple("grass.tga", &gTex);
     LoadTGATextureSimple("SkyBox512.tga", &sTex);
-    LoadTGATextureSimple("conc.tga", &cTex);
+    LoadTGATextureSimple("dirt.tga", &cTex);
+    LoadTGATextureSimple("grass.tga", &multiTex);
     printError("load textures");
 
     // Load objects
