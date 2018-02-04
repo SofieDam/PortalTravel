@@ -285,7 +285,6 @@ void display(void)
     glEnable(GL_DEPTH_TEST);
     // --------------------------------------------
 
-
     draw(Ground);
     draw(Windmill);
 

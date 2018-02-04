@@ -20,6 +20,11 @@
 #define top 0.5
 #define bottom -0.5
 
+
+// Reference to shader program
+GLuint program, lightProgram, sTex, gTex, cTex;
+
+
 // Modified projection matrix, see p.59 in course book
 GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
 								  0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
@@ -27,15 +32,29 @@ GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(ri
 								  0.0f, 0.0f, -1.0f, 0.0f };
 
 
-float height=0, angle=0, zoom=8;
 
+
+// lab3-4
+Point3D lightSourcesColorsArr[] = { {1.0f, 0.0f, 0.0f},   // Red light
+                                    {0.0f, 1.0f, 0.0f},   // Green light
+                                    {0.0f, 0.0f, 1.0f},   // Blue light
+                                    {1.0f, 1.0f, 1.0f} }; // White light
+GLfloat specularExponent[] = {10.0, 20.0, 60.0, 5.0};
+GLint isDirectional[] = {0,0,1,1};
+Point3D lightSourcesDirectionsPositions[] = { {10.0f, 5.0f, 0.0f},   // Red light, positional
+                                              {0.0f, 5.0f, 10.0f},   // Green light, positional
+                                              {-1.0f, 0.0f, 0.0f},   // Blue light along X
+                                              {0.0f, 0.0f, -1.0f} }; // White light along Z
+
+
+
+
+float height=0, angle=0, zoom=8;
 GLfloat a = 0;
 GLfloat bladeAngle = 0;
 
 
 
-// Reference to shader program
-GLuint program, lightProgram, sTex, gTex, cTex;
 
 // Page 187 in the coursebook
 struct GraphicsEntity
@@ -213,14 +232,17 @@ void draw(struct GraphicsEntity entity)
 
     glUseProgram(entity.program);
 
+    // lab4-3
+    // Upload external light sources to shader
+    glUniform3fv(glGetUniformLocation(entity.program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
+    glUniform3fv(glGetUniformLocation(entity.program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
+    glUniform1fv(glGetUniformLocation(entity.program, "specularExponent"), 4, specularExponent);
+    glUniform1iv(glGetUniformLocation(entity.program, "isDirectional"), 4, isDirectional);
 
-    /*
- * void gluLookAt(GLdouble eyeX,  GLdouble eyeY,  GLdouble eyeZ,
- * 				  GLdouble centerX,  GLdouble centerY,  GLdouble centerZ,
- * 				  GLdouble upX,  GLdouble upY,  GLdouble upZ);
- */
+
+    //vec3 eyeCoordinate = zoom*sin(angle),zoom*height,zoom*cos(angle);
     mat4 worldToView = lookAt(zoom*sin(angle),zoom*height,zoom*cos(angle), 0,0,0, 0,1,0);
-    //mat4 worldToView = lookAt(8*cos(a),0,8*sin(a), 0,0,0, 0,1,0);
+    glUniform3f(glGetUniformLocation(entity.program, "eyePosition"), zoom*sin(angle), zoom*height, zoom*cos(angle));
 
     // center the skybox around the camera (on origin in view coordinates)
     // zero out the translation part
@@ -229,10 +251,6 @@ void draw(struct GraphicsEntity entity)
         worldToView.m[3] = 0;
         worldToView.m[7] = 0;
         worldToView.m[11] = 0;
-
-        // Filter with GL_CLAMP_TO_EDGE to avoid edge artifacts
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     // Add rotation to the blades
@@ -303,8 +321,8 @@ void init(void)
     printError("GL inits");
 
     // Load and compile shader
-    program = loadShaders("lab3-3.vert", "lab3-3.frag");
-    lightProgram = loadShaders("lab3-3-light.vert", "lab3-3-light.frag");
+    program = loadShaders("lab3-4.vert", "lab3-4.frag");
+    lightProgram = loadShaders("lab3-4-light.vert", "lab3-4-light.frag");
     printError("init shader");
 
     // Load textures
@@ -332,7 +350,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(keyboard);
 
     glutInitWindowSize (500, 500);
-    glutCreateWindow ("lab3-3");
+    glutCreateWindow ("lab3-4");
     glutDisplayFunc(display);
     init ();
 

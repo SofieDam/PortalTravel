@@ -13,8 +13,12 @@ out vec2 ex_Tex_Coord;
 
 void main(void)
 {
-    ex_Normal = inverse(transpose(mat3(camMatrix * mdlMatrix))) * in_Normal; // Phong, normal transformation
-    ex_Surface = vec3(camMatrix * mdlMatrix * vec4(in_Position, 1.0));
+    //ex_Normal = inverse(transpose(mat3(camMatrix * mdlMatrix))) * in_Normal; // Phong, normal transformation
+    //ex_Surface = vec3(camMatrix * mdlMatrix * vec4(in_Position, 1.0));
+
+    // lab3-4
+    ex_Normal = normalize(inverse(transpose(mat3(mdlMatrix))) * in_Normal); // Phong, normal transformation
+    ex_Surface = vec3(mdlMatrix * vec4(in_Position, 1.0));
 
 	gl_Position = projectionMatrix * camMatrix * mdlMatrix * vec4(in_Position, 1.0);
 }
