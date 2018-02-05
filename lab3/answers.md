@@ -27,6 +27,7 @@ Keyboard. Following controls have been implemented:
  - "esc" - exit/close the window
 
 ### Can you make this kind of control in some other way than manipulating a "look-at" matrix?
+By directly controlling the object/the scene itself.
 
 ## 3) Virtual world and skybox
 
@@ -35,8 +36,8 @@ By zeroing the translation of the camera matrix.
 This will center the skybox around the camera.
 
 ### How did you represent the objects? Is this a good way to manage a scene or would you do it differently for a "real" application?
-- The ground is represented as a cube. It's rescaled, so that it looks like its flat (2D). 
-It is drawn like the skybox...... 
+- The ground is represented as a cube. It's rescaled, so that it looks like its flat (2D).
+It is drawn like the skybox......
 
 ### What special considerations are needed when rendering a skybox?
 - Draw without Z-buffering
@@ -47,12 +48,12 @@ It is drawn like the skybox......
 
 ### What is the problem with the skybox object used in the lab? (The problem doesn't have to be corrected.)
 The skybox has no visible ground and the ground we implement have no "infinite" length.
-The result to this is that the background will be shown in the edges of the ground object, since the ground do not reach the edges. 
+The result to this is that the background will be shown in the edges of the ground object, since the ground do not reach the edges.
 
 ## 4) Specular shading, external light sources
 
 ### How do you generate a vector from the surface to the eye?
-By taking the eye position (camera position) minus the surface position. 
+By taking the eye position (camera position) minus the surface position.
 
 ```c
 eyeDirection = normalize(eyePosition-ex_Surface);
@@ -66,11 +67,11 @@ eyeDirection = normalize(eyePosition-ex_Surface);
 ## 5) Multitexturing
 
 ### How did you choose to combine the texture colour and the lighting colour?
-By multiplication. 
+By multiplication.
 
 ```c
 out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
 ```
 
 ### How did you choose to combine the two textures?
-By multiplication. 
+By multiplication.
