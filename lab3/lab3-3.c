@@ -225,7 +225,7 @@ void draw(struct GraphicsEntity entity)
     // center the skybox around the camera (on origin in view coordinates)
     // zero out the translation part
     // see page 142 in the course book
-    if (!strcmp(entity.name,"skybox")) {
+    if (!strcmp(entity.name,"skybox") || !strcmp(entity.name,"ground")) {
         worldToView.m[3] = 0;
         worldToView.m[7] = 0;
         worldToView.m[11] = 0;
@@ -280,12 +280,12 @@ void display(void)
     glDisable(GL_DEPTH_TEST);
 
     draw(Skybox);
+    draw(Ground);
 
     // Turn on Z-buffer
     glEnable(GL_DEPTH_TEST);
     // --------------------------------------------
 
-    draw(Ground);
     draw(Windmill);
 
 	glutSwapBuffers();

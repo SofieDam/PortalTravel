@@ -35,6 +35,8 @@ By zeroing the translation of the camera matrix.
 This will center the skybox around the camera.
 
 ### How did you represent the objects? Is this a good way to manage a scene or would you do it differently for a "real" application?
+- The ground is represented as a cube. It's rescaled, so that it looks like its flat (2D). 
+It is drawn like the skybox...... 
 
 ### What special considerations are needed when rendering a skybox?
 - Draw without Z-buffering
