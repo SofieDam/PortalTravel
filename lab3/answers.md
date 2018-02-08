@@ -10,9 +10,7 @@
 The wings uses the same movements as the body + some extra rotation.
 
 ### You may have to tweak some numbers to make the placement right. How can you do that without making a lot of small changes in numbers in the code followed by recompilations?
-We set the placements once for the parent.
-All its children uses the same placement.
-So to change the placement for all objects, you only need to change the placement once (for the parent).
+By sending placements as arguments in the console/terminal.
 
 ## 2) Manual viewing controls
 
@@ -47,8 +45,7 @@ It is drawn like the skybox......
 - Filter with GL_CLAMP_TO_EDGE to avoid edge artifacts (we do not think this is necessary in this lab)
 
 ### What is the problem with the skybox object used in the lab? (The problem doesn't have to be corrected.)
-The skybox has no visible ground and the ground we implement have no "infinite" length.
-The result to this is that the background will be shown in the edges of the ground object, since the ground do not reach the edges.
+Only half of the skybox is drawn, which causes edge artifacts.
 
 ## 4) Specular shading, external light sources
 

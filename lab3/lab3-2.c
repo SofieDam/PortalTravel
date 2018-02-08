@@ -173,7 +173,7 @@ void init(void)
 	glClearColor(0.4,0.6,0.8,0);
 
 	// Turn on Z-buffer
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	//glDisable(GL_DEPTH_TEST);
     printError("GL inits");
 
