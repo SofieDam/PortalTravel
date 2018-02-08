@@ -23,27 +23,27 @@ void main(void)
     vec3 specular = vec3(0,0,0);
 
     // Diffuse
-    float diffuseStrength;
+    float diffuseStrength = 0;
     for(int i = 0; i < 4; i++)
     {
-    		diffuseStrength = dot(ex_Normal, lightSourcesDirPosArr[i]);
+    		diffuseStrength = dot(normalize(ex_Normal), normalize(lightSourcesDirPosArr[i]));
     		diffuseStrength = max(0.0, diffuseStrength); // No negative light
     		diffuse += diffuseStrength * lightSourcesColorArr[i];
     }
 
     // Specular
-    float specularStrength;
-    vec3 reflectedLightDirection;
-    vec3 eyeDirection;
+    float specularStrength = 0;
+    vec3 reflectedLightDirection = vec3(0,0,0);
+    vec3 eyeDirection = vec3(0,0,0);
     for(int i = 0; i < 4; i++)
     {
         if (isDirectional[i])   // Directional vector
         {
-            reflectedLightDirection = reflect(lightSourcesDirPosArr[i], ex_Normal);
+            reflectedLightDirection = reflect(lightSourcesDirPosArr[i], normalize(ex_Normal));
         }
         else    // Positional vector
         {
-            reflectedLightDirection = reflect(normalize(ex_Surface-lightSourcesDirPosArr[i]), ex_Normal);
+            reflectedLightDirection = reflect(normalize(ex_Surface-lightSourcesDirPosArr[i]), normalize(ex_Normal));
         }
 
         eyeDirection = normalize(eyePosition-ex_Surface); // View direction
@@ -57,11 +57,11 @@ void main(void)
         specular += specularStrength * lightSourcesColorArr[i];
     }
 
-    shade = 0.7*diffuse + specular;
+    shade = 0.2*diffuse + 0.5*specular;
 
-    out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
+    //out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
     //out_Color = texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
 
-    //out_Color = vec4(shade, 1.0) * (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
+    out_Color = vec4(shade, 1.0) * (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
    //out_Color = (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
 }

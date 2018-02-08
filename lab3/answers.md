@@ -70,8 +70,8 @@ eyeDirection = normalize(eyePosition-ex_Surface);
 By multiplication.
 
 ```c
-out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
+out_Color = vec4(shade, 1.0) * (sin(ex_Surface.x*0.5) * texture(texUnit2, ex_Tex_Coord) + (1-sin(ex_Surface.x*0.5)) * texture(texUnit, ex_Tex_Coord));
 ```
 
 ### How did you choose to combine the two textures?
-By multiplication.
+By addition. 

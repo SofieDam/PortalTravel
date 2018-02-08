@@ -72,7 +72,7 @@ struct GraphicsEntity
 
 };
 
-struct GraphicsEntity Windmill, Skybox, Ground;
+struct GraphicsEntity Windmill, Skybox, Ground, Teapot;
 
 
 void keyboard(unsigned char c, int x, int y)
@@ -114,6 +114,21 @@ void OnTimer(int value)
 {
 	glutPostRedisplay();
 	glutTimerFunc(20, &OnTimer, value);
+}
+
+void teapot() {
+    Teapot.name = strdup("teapot");
+    Teapot.m = LoadModelPlus("teapot.obj");
+    Teapot.translation = T(0, -1.5, 0);
+    Teapot.rotation = Ry(0);
+    Teapot.scale = S(0.3, 0.3, 0.3);
+    Teapot.texture = cTex;
+    Teapot.program = lightProgram;
+
+    Teapot.child = NULL;
+    Teapot.next = NULL;
+
+    printError("init teapot");
 }
 
 
@@ -310,7 +325,8 @@ void display(void)
     glEnable(GL_DEPTH_TEST);
     // --------------------------------------------
 
-    draw(Windmill);
+    //draw(Windmill);
+    draw(Teapot);
 
 	glutSwapBuffers();
 }
@@ -339,7 +355,8 @@ void init(void)
 
     // Load objects
     ground();
-    windmill();
+    //windmill();
+    teapot();
     skybox();
 
 }
@@ -356,7 +373,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(keyboard);
 
     glutInitWindowSize (500, 500);
-    glutCreateWindow ("lab3-4");
+    glutCreateWindow ("lab3-5");
     glutDisplayFunc(display);
     init ();
 

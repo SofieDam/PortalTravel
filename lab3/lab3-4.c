@@ -72,7 +72,7 @@ struct GraphicsEntity
 
 };
 
-struct GraphicsEntity Windmill, Skybox, Ground;
+struct GraphicsEntity Windmill, Skybox, Ground, Teapot;
 
 
 void keyboard(unsigned char c, int x, int y)
@@ -117,6 +117,21 @@ void OnTimer(int value)
 }
 
 
+void teapot() {
+    Teapot.name = strdup("teapot");
+    Teapot.m = LoadModelPlus("teapot.obj");
+    Teapot.translation = T(0, -1.5, 0);
+    Teapot.rotation = Ry(0);
+    Teapot.scale = S(0.3, 0.3, 0.3);
+    Teapot.texture = cTex;
+    Teapot.program = lightProgram;
+
+    Teapot.child = NULL;
+    Teapot.next = NULL;
+
+    printError("init teapot");
+}
+
 void ground() {
     Ground.name = strdup("ground");
     Ground.m = LoadModelPlus("cubeplus.obj");
@@ -126,8 +141,8 @@ void ground() {
     Ground.texture = gTex;
     Ground.program = program;
 
-    Skybox.child = NULL;
-    Skybox.next = NULL;
+    Ground.child = NULL;
+    Ground.next = NULL;
 
     printError("init ground");
 }
@@ -271,6 +286,9 @@ void draw(struct GraphicsEntity entity)
     if (!strcmp(entity.name,"skybox") || !strcmp(entity.name,"ground")) {
         DrawModel(entity.m, entity.program, "in_Position", NULL, "in_Tex_Coord");
     }
+    else if (!strcmp(entity.name,"teapot")) {
+        DrawModel(entity.m, entity.program, "in_Position", "in_Normal", NULL);
+    }
     else {
         DrawModel(entity.m, entity.program, "in_Position", "in_Normal", "in_Tex_Coord");
     }
@@ -288,7 +306,9 @@ void draw(struct GraphicsEntity entity)
 
 void display(void)
 {
-	printError("pre display");
+    glutKeyboardFunc(keyboard);
+
+    printError("pre display");
 
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
@@ -298,14 +318,15 @@ void display(void)
     glDisable(GL_DEPTH_TEST);
 
     draw(Skybox);
-		draw(Ground);
+    draw(Ground);
     // Turn on Z-buffer
     glEnable(GL_DEPTH_TEST);
     // --------------------------------------------
 
-    draw(Windmill);
+    //draw(Windmill);
+    draw(Teapot);
 
-		glutSwapBuffers();
+    glutSwapBuffers();
 }
 
 void init(void)
@@ -331,7 +352,8 @@ void init(void)
 
     // Load objects
     ground();
-    windmill();
+    //windmill();
+    teapot();
     skybox();
 
 }
@@ -345,7 +367,6 @@ int main(int argc, char *argv[])
 	// Set up Z-buffer
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutKeyboardFunc(keyboard);
 
     glutInitWindowSize (500, 500);
     glutCreateWindow ("lab3-4");
