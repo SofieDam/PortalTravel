@@ -77,6 +77,42 @@ struct GraphicsEntity Windmill, Skybox, Ground, Teapot;
 
 void keyboard(unsigned char c, int x, int y)
 {
+
+
+/*
+    if (glutKeyIsDown(GLUT_KEY_UP)) {
+        height += 0.1;
+        glutPostRedisplay();
+    }
+    if (glutKeyIsDown(GLUT_KEY_DOWN)) {
+        height -= 0.1;
+        glutPostRedisplay();
+    }
+    if (glutKeyIsDown(GLUT_KEY_RIGHT)) {
+        angle += 0.1;
+        glutPostRedisplay();
+    }
+    if (glutKeyIsDown(GLUT_KEY_LEFT)) {
+        angle -= 0.1;
+        glutPostRedisplay();
+    }
+
+    if (glutKeyIsDown('z')) {
+        zoom -= 0.5;
+        glutPostRedisplay();
+    }
+
+    if (glutKeyIsDown('x')) {
+        zoom += 0.5;
+        glutPostRedisplay();
+    }
+
+    if (glutKeyIsDown(27)) {
+        exit(0);
+    }
+    */
+
+
     switch (c)
     {
         case 27:
@@ -108,6 +144,7 @@ void keyboard(unsigned char c, int x, int y)
             glutPostRedisplay();
             break;
     }
+
 }
 
 void OnTimer(int value)
@@ -306,7 +343,12 @@ void draw(struct GraphicsEntity entity)
 
 void display(void)
 {
+    //if (glutKeyIsDown('a')) {
+    //    printf(" %c \n",'a');
+    //}
+
     glutKeyboardFunc(keyboard);
+
 
     printError("pre display");
 
@@ -366,7 +408,6 @@ int main(int argc, char *argv[])
 
 	// Set up Z-buffer
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-
 
     glutInitWindowSize (500, 500);
     glutCreateWindow ("lab3-4");

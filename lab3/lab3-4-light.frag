@@ -55,5 +55,6 @@ void main(void)
     }
 
     shade = 0.2*diffuse + 0.5*specular;
+
     out_Color = vec4(shade, 1.0);
 }

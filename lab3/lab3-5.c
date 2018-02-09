@@ -310,7 +310,9 @@ void draw(struct GraphicsEntity entity)
 
 void display(void)
 {
-	printError("pre display");
+    glutKeyboardFunc(keyboard);
+
+    printError("pre display");
 
 	// Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
@@ -369,8 +371,6 @@ int main(int argc, char *argv[])
 
 	// Set up Z-buffer
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-
-    glutKeyboardFunc(keyboard);
 
     glutInitWindowSize (500, 500);
     glutCreateWindow ("lab3-5");

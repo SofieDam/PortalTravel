@@ -13,6 +13,8 @@
 
 mat4 projectionMatrix;
 
+float vertical=5.0, horizontal=0.0, angleY=0.0, angleX=0.0, zoom=0.0;
+
 Model* GenerateTerrain(TextureData *tex)
 {
 	printf("tex->width * tex->height = %i * %i \n",tex->width,tex->height);
@@ -88,6 +90,57 @@ GLuint program;
 GLuint tex1, tex2;
 TextureData ttex; // terrain
 
+void keyboard(unsigned char c, int x, int y)
+{
+	switch (c)
+	{
+		case 27:
+			exit(0);
+			printf("case 27\n");
+			break;
+		case GLUT_KEY_UP:
+			vertical += 1.0;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_DOWN:
+			vertical -= 1.0;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_RIGHT:
+			horizontal += 1.0;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_LEFT:
+			horizontal -= 1.0;
+			glutPostRedisplay();
+			break;
+		case 'd':
+			angleX += 0.1;
+			glutPostRedisplay();
+			break;
+		case 'a':
+			angleX -= 0.1;
+			glutPostRedisplay();
+			break;
+		case 'w':
+			angleY += 0.1;
+			glutPostRedisplay();
+			break;
+		case 's':
+			angleY -= 0.1;
+			glutPostRedisplay();
+			break;
+		case 'z':
+			zoom -= 1.0;
+			glutPostRedisplay();
+			break;
+		case 'x':
+			zoom += 1.0;
+			glutPostRedisplay();
+			break;
+	}
+}
+
 void init(void)
 {
 	// GL inits
@@ -109,13 +162,15 @@ void init(void)
 	
 // Load terrain data
 	
-	LoadTGATextureData("44-terrain.tga", &ttex);
+	LoadTGATextureData("fft-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 }
 
 void display(void)
 {
+	glutKeyboardFunc(keyboard);
+
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -126,12 +181,15 @@ void display(void)
 	glUseProgram(program);
 
 	// Build matrix
-	
-	vec3 cam = {0, 5, 8};
-	vec3 lookAtPoint = {2, 0, 2};
+	vec3 cam = {horizontal*sin(angleX), vertical, horizontal*8*cos(angleX)};
+	vec3 lookAtPoint = {2*horizontal, 0, 2*horizontal};
+	//camMatrix = lookAt(cam.x, cam.y, cam.z,
+	//			lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
+	//			0.0, 1.0, 0.0);
 	camMatrix = lookAt(cam.x, cam.y, cam.z,
-				lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-				0.0, 1.0, 0.0);
+					   lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
+					   0.0, 1.0, 0.0);
+
 	modelView = IdentityMatrix();
 	total = Mult(camMatrix, modelView);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
@@ -168,7 +226,7 @@ int main(int argc, char **argv)
 	init ();
 	glutTimerFunc(20, &timer, 0);
 
-	glutPassiveMotionFunc(mouse);
+	//glutPassiveMotionFunc(mouse);
 
 	glutMainLoop();
 	exit(0);

@@ -7,7 +7,7 @@
 - Range: 0-255.
 
 ### The terrain is 4x4. How many polygons does it draw?
-18 triangles (= 9 rectangles) that forms one polygon.
+18 triangles/polygons.
 
 ## 2) Navigating the heightmap 
 
