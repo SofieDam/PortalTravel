@@ -10,10 +10,15 @@
 #include "VectorUtils3.h"
 #include "loadobj.h"
 #include "LoadTGA.h"
+#include "keyboard.c"
 
 mat4 projectionMatrix;
 
-float vertical=5.0, horizontal=0.0, angleY=0.0, angleX=0.0, zoom=0.0;
+// Build matrix
+vec3 cam = {0, 5, 8};
+vec3 lookAtPoint = {2, 0, 2};
+vec3 upVector = {0, 1, 0};
+float speed = 0.2;
 
 Model* GenerateTerrain(TextureData *tex)
 {
@@ -90,56 +95,6 @@ GLuint program;
 GLuint tex1, tex2;
 TextureData ttex; // terrain
 
-void keyboard(unsigned char c, int x, int y)
-{
-	switch (c)
-	{
-		case 27:
-			exit(0);
-			printf("case 27\n");
-			break;
-		case GLUT_KEY_UP:
-			vertical += 1.0;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_DOWN:
-			vertical -= 1.0;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_RIGHT:
-			horizontal += 1.0;
-			glutPostRedisplay();
-			break;
-		case GLUT_KEY_LEFT:
-			horizontal -= 1.0;
-			glutPostRedisplay();
-			break;
-		case 'd':
-			angleX += 0.1;
-			glutPostRedisplay();
-			break;
-		case 'a':
-			angleX -= 0.1;
-			glutPostRedisplay();
-			break;
-		case 'w':
-			angleY += 0.1;
-			glutPostRedisplay();
-			break;
-		case 's':
-			angleY -= 0.1;
-			glutPostRedisplay();
-			break;
-		case 'z':
-			zoom -= 1.0;
-			glutPostRedisplay();
-			break;
-		case 'x':
-			zoom += 1.0;
-			glutPostRedisplay();
-			break;
-	}
-}
 
 void init(void)
 {
@@ -169,26 +124,21 @@ void init(void)
 
 void display(void)
 {
-	glutKeyboardFunc(keyboard);
+	// Handle keyboard and update camera matrix
+	keyboard(&cam, &lookAtPoint, &upVector, speed);
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	mat4 total, modelView, camMatrix;
-	
+
 	printError("pre display");
 	
 	glUseProgram(program);
 
-	// Build matrix
-	vec3 cam = {horizontal*sin(angleX), vertical, horizontal*8*cos(angleX)};
-	vec3 lookAtPoint = {2*horizontal, 0, 2*horizontal};
-	//camMatrix = lookAt(cam.x, cam.y, cam.z,
-	//			lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-	//			0.0, 1.0, 0.0);
 	camMatrix = lookAt(cam.x, cam.y, cam.z,
 					   lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-					   0.0, 1.0, 0.0);
+					   upVector.x, upVector.y, upVector.z);
 
 	modelView = IdentityMatrix();
 	total = Mult(camMatrix, modelView);
@@ -215,6 +165,7 @@ void mouse(int x, int y)
 	printf("%d %d\n", x, y);
 }
 
+
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
@@ -227,6 +178,7 @@ int main(int argc, char **argv)
 	glutTimerFunc(20, &timer, 0);
 
 	//glutPassiveMotionFunc(mouse);
+	glutKeyboardFunc(keyPressed);
 
 	glutMainLoop();
 	exit(0);

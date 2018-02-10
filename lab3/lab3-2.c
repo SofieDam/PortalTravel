@@ -12,6 +12,7 @@
 #include "loadobj.h"
 #include "LoadTGA.h"
 #include "VectorUtils3.h"
+#include "keyboard.c"
 
 #define near 1.0
 #define far 30.0
@@ -54,40 +55,7 @@ struct GraphicsEntity
 struct GraphicsEntity Windmill;
 
 
-void keyboard(unsigned char c, int x, int y)
-{
-    switch (c)
-    {
-        case 27:
-            exit(0);
-            printf("case 27\n");
-            break;
-        case GLUT_KEY_UP:
-            height += 0.1;
-            glutPostRedisplay();
-            break;
-        case GLUT_KEY_DOWN:
-            height -= 0.1;
-            glutPostRedisplay();
-            break;
-        case GLUT_KEY_RIGHT:
-            angle += 0.1;
-            glutPostRedisplay();
-            break;
-        case GLUT_KEY_LEFT:
-            angle -= 0.1;
-            glutPostRedisplay();
-            break;
-        case 'z':
-            zoom -= 0.5;
-            glutPostRedisplay();
-            break;
-        case 'x':
-            zoom += 0.5;
-            glutPostRedisplay();
-            break;
-    }
-}
+
 
 void OnTimer(int value)
 {
@@ -228,14 +196,16 @@ void display(void)
 {
 	printError("pre display");
 
-	// Clear the screen and Z-buffer
+    // Handle keyboard inputs
+    keyboard(&height, &angle, &zoom);
+
+    // Clear the screen and Z-buffer
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 
     draw(Windmill);
 
 	glutSwapBuffers();
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -245,11 +215,10 @@ int main(int argc, char *argv[])
 	// Set up Z-buffer
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutKeyboardFunc(keyboard);
-
     glutInitWindowSize (500, 500);
     glutCreateWindow ("lab3-2");
     glutDisplayFunc(display);
+    glutKeyboardFunc(keyPressed);
     init ();
 
     glutTimerFunc(20, &OnTimer, 0);
