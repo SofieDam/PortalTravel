@@ -32,28 +32,33 @@ void keyboard(vec3* eye, vec3* center, vec3* up, float speed){
     vec3 forwardDirection = Normalize(VectorSub(*center, *eye));
     vec3 rightDirection = Normalize(CrossProduct(forwardDirection, *up));
 
+    vec3 forwardStep = ScalarMult(forwardDirection, speed);
+    vec3 backwardStep = ScalarMult(forwardDirection, -speed);
+    vec3 leftStep = ScalarMult(rightDirection, -speed);
+    vec3 rightStep = ScalarMult(rightDirection, speed);
+
     // Move forward
     if (glutKeyIsDown(GLUT_KEY_UP)) {
-        *eye = VectorAdd(*eye, ScalarMult(forwardDirection, speed));
-        *center = VectorAdd(*center, ScalarMult(forwardDirection, speed));
+        *eye = VectorAdd(*eye, forwardStep);
+        *center = VectorAdd(*center, forwardStep);
     };
 
     // Move backward
     if (glutKeyIsDown(GLUT_KEY_DOWN)) {
-        *eye = VectorAdd(*eye, ScalarMult(forwardDirection, -speed));
-        *center = VectorAdd(*center, ScalarMult(forwardDirection, -speed));
+        *eye = VectorAdd(*eye, backwardStep);
+        *center = VectorAdd(*center, backwardStep);
     };
 
     // Move left
     if (glutKeyIsDown(GLUT_KEY_LEFT)) {
-        *eye = VectorAdd(*eye, ScalarMult(rightDirection, -speed));
-        *center = VectorAdd(*center, ScalarMult(rightDirection, -speed));
+        *eye = VectorAdd(*eye, leftStep);
+        *center = VectorAdd(*center, leftStep);
     };
 
     // Move right
     if (glutKeyIsDown(GLUT_KEY_RIGHT)) {
-        *eye = VectorAdd(*eye, ScalarMult(rightDirection, speed));
-        *center = VectorAdd(*center, ScalarMult(rightDirection, speed));
+        *eye = VectorAdd(*eye, rightStep);
+        *center = VectorAdd(*center, rightStep);
     };
 
 
