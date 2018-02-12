@@ -25,7 +25,7 @@ Point3D lightSourcesColorsArr[] = { {1.0f, 0.0f, 0.0f},   // Red light
 									{0.0f, 1.0f, 0.0f},   // Green light
 									{0.0f, 0.0f, 1.0f},   // Blue light
 									{1.0f, 1.0f, 1.0f} }; // White light
-GLfloat specularExponent[] = {10.0, 20.0, 60.0, 5.0};
+GLfloat specularExponent[] = {300.0, 300.0, 600.0, 500.0};
 GLint isDirectional[] = {0,0,1,1};
 Point3D lightSourcesDirectionsPositions[] = { {10.0f, 5.0f, 0.0f},   // Red light, positional
 											  {0.0f, 5.0f, 10.0f},   // Green light, positional

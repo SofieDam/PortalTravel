@@ -57,9 +57,9 @@ eyeDirection = normalize(eyePosition-ex_Surface);
 ```
 
 ### Which vectors need renormalization in the fragment shader?
+- lightSourcesDirPosArr 
+- Normal direction
 - View/eye direction
-- Positional vectors
-- Normal direction (but do this in the vertex shader)
 
 ## 5) Multitexturing
 

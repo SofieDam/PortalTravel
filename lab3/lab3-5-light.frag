@@ -22,11 +22,13 @@ void main(void)
     vec3 diffuse = vec3(0,0,0);
     vec3 specular = vec3(0,0,0);
 
+
     // Diffuse
     float diffuseStrength = 0;
     for(int i = 0; i < 4; i++)
     {
-    		diffuseStrength = dot(normalize(ex_Normal), normalize(lightSourcesDirPosArr[i]));
+            vec3 light = lightSourcesDirPosArr[i];
+    		diffuseStrength = dot(normalize(ex_Normal), normalize(light));
     		diffuseStrength = max(0.0, diffuseStrength); // No negative light
     		diffuse += diffuseStrength * lightSourcesColorArr[i];
     }
@@ -34,19 +36,19 @@ void main(void)
     // Specular
     float specularStrength = 0;
     vec3 reflectedLightDirection = vec3(0,0,0);
-    vec3 eyeDirection = vec3(0,0,0);
+    vec3 eyeDirection = normalize(eyePosition-ex_Surface); // View direction
+
     for(int i = 0; i < 4; i++)
     {
         if (isDirectional[i])   // Directional vector
         {
-            reflectedLightDirection = reflect(lightSourcesDirPosArr[i], normalize(ex_Normal));
+            reflectedLightDirection = reflect(normalize(lightSourcesDirPosArr[i]), normalize(ex_Normal));
         }
         else    // Positional vector
         {
             reflectedLightDirection = reflect(normalize(ex_Surface-lightSourcesDirPosArr[i]), normalize(ex_Normal));
         }
 
-        eyeDirection = normalize(eyePosition-ex_Surface); // View direction
         specularStrength = dot(reflectedLightDirection, eyeDirection);
 
         if (specularStrength > 0.0)
@@ -57,7 +59,7 @@ void main(void)
         specular += specularStrength * lightSourcesColorArr[i];
     }
 
-    shade = 0.2*diffuse + 0.5*specular;
+    shade = 0.7*diffuse + 0.7*specular;
 
     //out_Color = vec4(shade, 1.0) * texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
     //out_Color = texture(texUnit2, ex_Tex_Coord) * texture(texUnit, ex_Tex_Coord);
