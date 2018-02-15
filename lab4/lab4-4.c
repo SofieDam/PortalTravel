@@ -39,7 +39,7 @@ float modelSpeed = 0.01;
 /*
  * Calculate map height for a point.
  */
-float height(Model* m, int width, int x, int z)
+float height(Model* m, int width, float x, float z)
 {
 	// 1) Calculate what quad the point falls into.
 	// v1*--*v2
@@ -47,23 +47,32 @@ float height(Model* m, int width, int x, int z)
 	//   |/ |
 	// v3*--*v4
 
-    // floor() finds the closest lower int
-    int row = floor(z);
-    int column = floor(x);
+    // floor() finds the nearest integer less than or equal to the parameter
+    int row = floor(x);
+    int column = floor(z);
 
+    // All are points on the Y-axis.
     float v1 = m->vertexArray[(row + column * width)*3 + 1];
     float v2 = m->vertexArray[((row+1) + column * width)*3 + 1];
     float v3 = m->vertexArray[(row + (column+1) * width)*3 + 1];
-    float v4 = m->vertexArray[((row+1) + (col+1) * width)*3 + 1];
+    float v4 = m->vertexArray[((row+1) + (column+1) * width)*3 + 1];
 
 	// 2) The quad is built from two triangles. Figure out which one to use.
-
-    // HERE I AM
-
-	// 3) Calculate the height value. There are several ways to do it.
-	// You can interpolate over the surface, or you can use the plane equation.
-
-	return 1.0;
+    float xDiff = x-(float)column;
+    float zDiff = z-(float)row;
+    float h;
+    if ((xDiff + zDiff) < 1.0)     // triangle v1, v2, v3
+    {
+        // 3) Calculate the height value. Plane equation.
+        h = v1 + xDiff*(v2 - v1) + zDiff*(v3 - v1);
+        return h;
+    }
+    else                          // triangle v2, v3, v4
+    {
+        // 3) Calculate the height value. Plane equation.
+        h = v4 + (1.0-xDiff)*(v2 - v4) + (1.0-zDiff)*(v3 - v4);
+        return h;
+    }
 }
 
 Model* GenerateTerrain(TextureData *tex)
@@ -212,6 +221,9 @@ void init(void)
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 
+    // m = LoadModelPlus("groundsphere.obj");
+    m = LoadModelPlus("octagon.obj");
+
 	// Upload external light sources to shader
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
@@ -264,7 +276,7 @@ void display(void)
 
     glBindTexture(GL_TEXTURE_2D, tex2);
 
-    DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+    DrawModel(m, program, "inPosition", "inNormal", "inTexCoord");
 
 
 

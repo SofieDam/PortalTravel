@@ -25,7 +25,18 @@ Pick three neighbor vertices, on all sides of the vertex, and use these three fo
 ## 4) Calculating map height for a point
 
 ### How did you figure out what surface to use? 
+We figured out which quad the point belonged to. 
+Then we calculated whether it was in the upper or lower triangle of the quad. 
 
 ### How did you calculate the height from the surface?
+By using plane equation.
+For upper triangle:
+```c
+float height = v1 + xDiff*(v2 - v1) + zDiff*(v3 - v1);
+```
+For lower triangle:
+```c
+float height = v4 + (1.0-xDiff)*(v2 - v4) + (1.0-zDiff)*(v3 - v4);
+```
 
 ## 5) Pick one of the "extras" below as final part of the lab. 
