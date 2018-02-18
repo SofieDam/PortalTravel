@@ -12,7 +12,15 @@
 #include "LoadTGA.h"
 #include "keyboard.c"
 
-mat4 projectionMatrix, modelMatrix;
+mat4 projectionMatrix;
+
+// vertex array object
+Model *m, *m2, *tm, *sphere;
+// Reference to shader program
+GLuint program, objectProgram;
+GLuint tex1, tex2;
+TextureData ttex; // terrain
+
 
 // LooakAt vertices
 vec3 cam = {0, 5, 8};
@@ -38,36 +46,19 @@ float modelSpeed = 0.01;
 
 
 // Collision handling and objects
-Model *nasty[2]; // Static thing to bounce off.
-Model *sphere; // spheres
-vec3 objectcolor[2] = {{0.7, 0.9, 1.0},
-					   {0.9, 0.7, 1.0}};
-// Array of balls (world coords)
-#define sphereNr 4
+#define sphereNr 8
+#define RADIUS 1.0
+//vec3 grav = {0.0, -0.01, 0.0};
+struct GraphicsEntity
+{
+	int i;
+	Model *m;
+	vec3 color;
+	vec3 position;
+	vec3 speed;
+};
 
-float spherePosition[sphereNr][3] = {{0.0, 2.0, 0.0},
-									 {2.0, 0.0, 2.0},
-									 {4.0, 1.0, 4.0},
-									 {6.0, 1.0, 6.0} };
-
-float sphereSpeed[sphereNr][3] = {{0.0, -0.2, 0.0},
-									{0.5, 0.0, 0.0},
-									{0.0, 1.0, 0.0},
-									{0.0, 1.0, 0.0} };
-
-float sphereColor[sphereNr][3] = {{1.0, 0.0, 1.0},			// magneta
-									{0.0, 1.0, 1.0},		// cyan
-									{1.0, 1.0, 0.0},		// yellow
-									{0.0, 0.0, 1.0} };		// blue
-
-vec3 grav = {0, -0.01, 0};
-#define kBounce 0.7
-// Set this to 0 or 1:
-#define harderCase 0
-
-
-
-
+struct GraphicsEntity SphereEntity[sphereNr];
 
 /*
  * Calculate map height for a point.
@@ -110,23 +101,14 @@ float height(Model* m, int width, float x, float z)
 
 Model* GenerateTerrain(TextureData *tex)
 {
-	printf("tex->width * tex->height = %i * %i \n",tex->width,tex->height);
-
 	int vertexCount = tex->width * tex->height;
-	int triangleCount = (tex->width-1) * (tex->height-1) * 2;	// lab4-1: 18 triangles
+	int triangleCount = (tex->width-1) * (tex->height-1) * 2;
 	int x, z;
-
-	printf("triangleCount = %i \n",triangleCount);
 
 	GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
 	GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
 	GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
 	GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount*3);
-
-	printf("sizeof(GLuint) = %lu \n",sizeof(GLuint));
-	printf("texCoordArray = %lu \n",sizeof(texCoordArray));
-	printf("indexArray = %lu \n",sizeof(indexArray));
-
 
 	printf("bpp %d\n", tex->bpp);
 	for (x = 0; x < tex->width; x++)
@@ -220,13 +202,82 @@ Model* GenerateTerrain(TextureData *tex)
 }
 
 
-// vertex array object
-Model *m, *m2, *tm;
-// Reference to shader program
-GLuint program, objectProgram;
-GLuint tex1, tex2;
-TextureData ttex; // terrain
+void collisionHandler(int i)
+{
+	float limit = 20.0;
 
+	// If the spheres gets outside the ground bounds
+	if ((SphereEntity[i].position.x < (RADIUS))) {
+		SphereEntity[i].speed.x = ((float)(-1))*SphereEntity[i].speed.x;
+	}
+	if ((SphereEntity[i].position.z < (RADIUS))) {
+		SphereEntity[i].speed.z = ((float)(-1))*SphereEntity[i].speed.z;
+	}
+
+	// If the spheres gets outside special ground limit
+	if ((SphereEntity[i].position.x > (limit-RADIUS))) {
+		SphereEntity[i].speed.x = ((float)(-1))*SphereEntity[i].speed.x;
+	}
+	if ((SphereEntity[i].position.z > (limit-RADIUS))) {
+		SphereEntity[i].speed.z = ((float)(-1))*SphereEntity[i].speed.z;
+	}
+
+
+
+	// Collision between objects
+	int j;
+	for (j = i+1; j < sphereNr; j++) {
+
+		vec3 diff = VectorSub(SphereEntity[i].position, SphereEntity[j].position); // Position difference
+
+		if (Norm(diff) < 2 * RADIUS) // Close enough to collide?
+		{
+			if (diff.x < (2*RADIUS)) {
+				SphereEntity[i].speed.x = ((float)(-1))*SphereEntity[i].speed.x;
+				SphereEntity[j].speed.x = ((float)(-1))*SphereEntity[j].speed.x;
+			}
+			if (diff.z < (2*RADIUS)) {
+				SphereEntity[i].speed.z = ((float)(-1))*SphereEntity[i].speed.z;
+				SphereEntity[j].speed.z = ((float)(-1))*SphereEntity[j].speed.z;
+			}
+		}
+
+
+	}
+}
+
+
+void initSpheres()
+{
+	float startPosX=0.0, startPosY, startPosZ=0.0;
+	float randSpeedX, randSpeedY, randSpeedZ;
+	float randColorX, randColorY, randColorZ;
+
+	int i;
+	for (i = 0; i < sphereNr; i++) {
+
+		startPosX += 2.0;
+		startPosZ += 2.0;
+		startPosY = height(tm, ttex.width, startPosX, startPosZ);
+
+		randSpeedX = (((float)rand())/(RAND_MAX*50.0)) * pow(((float)((-1))),(((float)(i))));
+		randSpeedY = 0.0;
+		randSpeedZ = (((float)rand())/(RAND_MAX*50.0)) * pow(((float)((-1))),(((float)(i))));
+
+		randColorX = ((float)rand())/RAND_MAX;
+		randColorY = ((float)rand())/RAND_MAX;
+		randColorZ = ((float)rand())/RAND_MAX;
+
+		struct GraphicsEntity s;
+		s.i = i;
+		s.m = sphere;
+		s.color = SetVector(randColorX, randColorY, randColorZ);
+		s.position = SetVector(startPosX, startPosY, startPosZ);
+		s.speed = SetVector(randSpeedX, randSpeedY, randSpeedZ);
+
+		SphereEntity[i] = s;
+	}
+}
 
 void init(void)
 {
@@ -244,7 +295,7 @@ void init(void)
 	
 	glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("maskros512.tga", &tex1);
-    LoadTGATextureSimple("conc.tga", &tex2);
+    //LoadTGATextureSimple("conc.tga", &tex2);
 	
 	// Load terrain data
 	LoadTGATextureData("fft-terrain.tga", &ttex);
@@ -253,19 +304,18 @@ void init(void)
 	printError("init terrain");
 
     // m = LoadModelPlus("groundsphere.obj");
-    m = LoadModelPlus("octagon.obj");
-
-
-	// Sphere
-	objectProgram = loadShaders("phong.vert", "phong.frag");
-	sphere = LoadModelPlus("groundsphere.obj");
-
+    //m = LoadModelPlus("octagon.obj");
 
 	// Upload external light sources to shader
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
 	glUniform1fv(glGetUniformLocation(program, "specularExponent"), 4, specularExponent);
 	glUniform1iv(glGetUniformLocation(program, "isDirectional"), 4, isDirectional);
+
+	// Sphere
+	objectProgram = loadShaders("phong.vert", "phong.frag");
+	sphere = LoadModelPlus("groundsphere.obj");
+	initSpheres();
 }
 
 
@@ -281,7 +331,7 @@ void display(void)
 
 	// Terrain
 
-	mat4 total, modelView, camMatrix;
+	mat4 total, modelView, camMatrix, modelMatrix;
 
 	printError("pre display");
 	
@@ -304,45 +354,27 @@ void display(void)
 
 
 
-	// Model
-/*
-    modelPosX += modelSpeed;
-    modelPosZ += modelSpeed;
-    modelPosY = height(tm, ttex.width, modelPosX, modelPosZ);
 
-    modelMatrix = Mult(total, T(modelPosX, modelPosY, modelPosZ));
-
-    glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, modelMatrix.m);
-    glUniform3f(glGetUniformLocation(program, "eyePosition"), cam.x, cam.y, cam.z);
-
-    glBindTexture(GL_TEXTURE_2D, tex2);
-
-    DrawModel(m, program, "inPosition", "inNormal", "inTexCoord");
-    */
-
-
-	// Sphere
+	// Sphere/objects
 
 	glUseProgram(objectProgram);
 	glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 
-	float spherePosX, spherePosY, spherePosZ;
-
-	for (int i = 0; i < sphereNr; i++)
+	int i;
+	for (i = 0; i < sphereNr; i++)
 	{
-		spherePosX = spherePosition[i][0];
-		spherePosZ = spherePosition[i][2];
-		spherePosY = height(tm, ttex.width, spherePosX, spherePosZ);
+		collisionHandler(i);
+		SphereEntity[i].position.x += SphereEntity[i].speed.x;
+		SphereEntity[i].position.z += SphereEntity[i].speed.z;
+		SphereEntity[i].position.y = height(tm, ttex.width, SphereEntity[i].position.x, SphereEntity[i].position.z);
+		
+		modelMatrix = Mult(total, T(SphereEntity[i].position.x, SphereEntity[i].position.y, SphereEntity[i].position.z));
 
-		modelMatrix = Mult(total, T(spherePosX, spherePosY, spherePosZ));
-
-		glUniform3f(glGetUniformLocation(objectProgram, "color"), sphereColor[i][0], sphereColor[i][1], sphereColor[i][2]);
+		glUniform3f(glGetUniformLocation(objectProgram, "color"), SphereEntity[i].color.x, SphereEntity[i].color.y, SphereEntity[i].color.z);
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mdlMatrix"), 1, GL_TRUE, modelMatrix.m);
 
-		DrawModel(sphere, objectProgram, "inPosition", "inNormal", NULL);
+		DrawModel(SphereEntity[i].m, objectProgram, "inPosition", "inNormal", NULL);
 	}
-
-
 
 	printError("display 2");
 	

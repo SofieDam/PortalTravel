@@ -10,7 +10,7 @@ uniform mat4 projMatrix;
 
 void main(void)
 {
-    ex_Normal = inverse(transpose(mat3(mdlMatrix)) * inNormal); // Phong, normal transformation
+    ex_Normal = inverse(transpose(mat3(mdlMatrix))) * inNormal; // Phong, normal transformation
     ex_Surface = vec3(mdlMatrix * vec4(inPosition, 1.0));
 
     gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
