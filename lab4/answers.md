@@ -40,3 +40,11 @@ float height = v4 + (1.0-xDiff)*(v2 - v4) + (1.0-zDiff)*(v3 - v4);
 ```
 
 ## 5) Pick one of the "extras" below as final part of the lab. 
+
+### 5b)
+#### How did you handle collisions? 
+By checking the distance to all other objetcs and the terrain edges. 
+We changed the direction to the opposite if an collision was detected.
+    
+#### How did you represent the objects to make collision detection easy/managable?
+By representing them in an global array, containing a struct for each object.
