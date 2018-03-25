@@ -85,7 +85,7 @@ void display(void)
 
     //DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
-
+    glutSwapBuffers();
 }
 
 void timer(int i)
