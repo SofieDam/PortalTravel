@@ -13,7 +13,7 @@
 mat4 projectionMatrix;
 
 // vertex array object
-Model *m, *t;
+Model *m;
 
 // Reference to shader program
 GLuint program;
@@ -33,69 +33,8 @@ float speed = 0.1;
 
 
 
-// xyz-plane for each side of the cube
-/*
-static const vec3 xyz_plane[4] = {
-        {1.0, 1.0, 0.0},              // front
-        {0.0, 1.0, -1.0},              // right
-        {1.0, 1.0,  -1.0},             // back
-        {-1.0, 1.0, -1.0}              // left
-};
- */
 
-
-
-/*
-GLfloat cube_vertices[] = {
-        // front
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-
-        // right
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-
-        // back
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-
-        // left
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, -1.0f,
-
-        // upper
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-
-        // bottom
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f
-        };
-
-GLuint cube_indices[] = {
-        0,  1,  2,  0,  2,  3,   //front
-        4,  5,  6,  4,  6,  7,   //right
-        8,  9,  10, 8,  10, 11,  //back
-        12, 13, 14, 12, 14, 15,  //left
-        16, 17, 18, 16, 18, 19,  //upper
-        20, 21, 22, 20, 22, 23}; //bottom
-*/
-
-
-
-// First vector (lower left) to generate a cube side
+// First vector (lower left corner) to generate a cube side
 static vec3 cube_vertices[6] = {
         {-1.0, -1.0, 1.0},            // front
         {1.0, -1.0, 1.0},             // right
@@ -105,6 +44,7 @@ static vec3 cube_vertices[6] = {
         {1.0, -1.0, 1.0},            // bottom
 };
 
+// XYZ-transformation for each cube side
 static mat3 cube_xyz_plane[6] = {
         {1.0, 0.0, 0.0,   0.0, 1.0, 0.0,   0.0, 0.0, 0.0},     // front
         {0.0, 0.0, 0.0,   0.0, 1.0, 0.0,  -1.0, 0.0, 0.0},     //right
@@ -116,38 +56,24 @@ static mat3 cube_xyz_plane[6] = {
 
 Model* generateSphere()
 {
-#define PI 3.14159265358979323846f
 
-/*
-    int vertexCount = 4*6;
-    int triangleCount = 4*6* 2;
-
-    GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
-    //GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
-    //GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
-    GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount*3);
-
-    vertexArray = cube_vertices;
-    indexArray = cube_indices;
-*/
-
-
-    //int width = 2;
-    //int height = 2;
-
-    float radius = 1.0;
-    vec3 radius_vec = SetVector(radius,radius,radius);
     //int w = ttex.width;
-    int w = 2;
+    //int w = 2;
+    int w = 32;
 
     float cube_width = 2.0;
     float square_width = cube_width / (float)w;
+
+
     printf("w = %f\n", (float)w);
     printf("cube_width = %f\n", cube_width);
     printf("square_width = %f\n", square_width);
     printf("\n");
 
+
     int cube_sides = 6;
+
+    w += 1;             // need one extra vertex to scale from image properly
 
     int vertexCount = w*w*cube_sides;
     int triangleCount = (w-1) * (w-1) * 2 * cube_sides;
@@ -163,36 +89,26 @@ Model* generateSphere()
     vec3 r_c;
     vec3 sphere_r_c;
     for( i=0; i<cube_sides; i++ )
-        for( c=0; c<(w); c++ ) {
-            for( r=0; r<(w); r++ ) {
+        for( c=0; c<w; c++ ) {
+            for( r=0; r<w; r++ ) {
 
-                printf("c = %i, r = %i \n",c,r);
 
                 r_c = SetVector(r, c, 0);
-                r_c = ScalarMult(r_c, w);
+                r_c = ScalarMult(r_c, square_width);
                 r_c = MultMat3Vec3(cube_xyz_plane[i],r_c);
                 r_c = VectorAdd(cube_vertices[i], r_c);
 
+                // Transform cube to sphere positions
+                r_c = Normalize(r_c);
 
-                // Transform to sphere positions
-                //r_c = mix(r_c,radius_vec,1.0f);
-                //r_c =
-                //sphere_r_c = Normalize(r_c);
-                //r_c = mix(r_c,sphere_r_c,1.0);
 
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 0] = r_c.x;
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 1] = r_c.y;
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 2] = r_c.z;
 
-                printf("vertexArray[%i].x = %f \n",((r + (c*w) + (i*w*w)) * 3 + 0), r_c.x);
-                printf("vertexArray[%i].y = %f \n",((r + (c*w) + (i*w*w)) * 3 + 1), r_c.y);
-                printf("vertexArray[%i].z = %f \n", ((r + (c*w) + (i*w*w)) * 3 + 2), r_c.z);
-
-
-
+                // Calculate texture coordinates
                 texCoordArray[(r + (c*w) + (i*w*w))*2 + 0] = -r; // (float)x / tex->width;
                 texCoordArray[(r + (c*w) + (i*w*w))*2 + 1] = -c; // (float)z / tex->height;
-
                 }
             }
 
@@ -201,37 +117,17 @@ Model* generateSphere()
     for( i=0; i<cube_sides; i++ )
         for( c=0; c<(w-1); c++ )
             for( r=0; r<(w-1); r++ ) {
-                //printf("\n");
 
                 // Triangle 1
-
-                //indexArray[(r + c * (w-1))*6 + 0] = vertexArray[(r + c * w) * 3 + 0];
-                //indexArray[(r + c * (w-1))*6 + 1] = vertexArray[(r + (c+1) * w) * 3 + 0];
-                //indexArray[(r + c * (w-1))*6 + 2] = vertexArray[(r+1 + c * w) * 3 + 0];
-
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 0] = r + (c*w) + (i*w*w);
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 1] = (r+1) + (c*w) + (i*w*w);
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 2] = r + ((c+1)*w) + (i*w*w);
 
                 // Triangle 2
-
-                //indexArray[(r + c * (w-1))*6 + 0] = vertexArray[((r+1) + c * w) * 3 + 0];
-                //indexArray[(r + c * (w-1))*6 + 1] = vertexArray[(r + (c+1) * w) * 3 + 0];
-                //indexArray[(r + c * (w-1))*6 + 2] = vertexArray[((r+1) + (c+1) * w) * 3 + 0];
-
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 3] = (r+1) + (c*w) + (i*w*w);
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 4] = r + ((c+1)*w) + (i*w*w);
                 indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 5] = (r+1) + ((c+1)*w) + (i*w*w);
 
-                /*
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 0), (indexArray[(r + c * (width-1))*6 + 0]));
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 1), (indexArray[(r + c * (width-1))*6 + 1]));
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 2), (indexArray[(r + c * (width-1))*6 + 2]));
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 3), (indexArray[(r + c * (width-1))*6 + 3]));
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 4), (indexArray[(r + c * (width-1))*6 + 4]));
-                printf("ia_%i: %i\n", ((r + c * (width-1))*6 + 5), (indexArray[(r + c * (width-1))*6 + 5]));
-                printf("\n");
-                 */
             }
 
 
@@ -284,15 +180,11 @@ void init(void)
 
     // Load terrain data
     LoadTGATextureData("image/fft-terrain.tga", &ttex);
-    printError("init terrain");
+    printError("init terrain data");
 
-    //m = LoadModelPlus("cubeplus.obj");
-
-    //init_matrices();
+    // Generate terrain model
     m = generateSphere();
-
-    //t = LoadModelPlus("cubeplus.obj");
-
+    printError("init terrain model");
 
 }
 
@@ -305,7 +197,6 @@ void display(void)
     // clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Terrain
 
     mat4 camMatrix, identityMatrix, modelMatrix;
 
@@ -326,7 +217,6 @@ void display(void)
     identityMatrix = IdentityMatrix();
     glUniformMatrix4fv(glGetUniformLocation(program, "identityMatrix"), 1, GL_TRUE, identityMatrix.m);
 
-    //modelMatrix = Mult(S(0.5, 0.5, 0.5),T(0,0,-4));
     modelMatrix = S(0.3, 0.3, 0.3);
     glUniformMatrix4fv(glGetUniformLocation(program, "modelMatrix"), 1, GL_TRUE, modelMatrix.m);
 
@@ -341,6 +231,7 @@ void display(void)
     DrawModel(m, program, "inPosition", NULL, "inTexCoord");
 
     //DrawModel(t, program, "inPosition", NULL, NULL);
+
 
     glutSwapBuffers();
 }
