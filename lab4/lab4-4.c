@@ -216,8 +216,8 @@ void init(void)
     LoadTGATextureSimple("conc.tga", &tex2);
 	
 	// Load terrain data
-	LoadTGATextureData("fft-terrain.tga", &ttex);
-	//LoadTGATextureData("44-terrain.tga", &ttex);
+	//LoadTGATextureData("fft-terrain.tga", &ttex);
+	LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 
