@@ -342,7 +342,6 @@ void display(void)
 
     //DrawModel(t, program, "inPosition", NULL, NULL);
 
-
     glutSwapBuffers();
 }
 
