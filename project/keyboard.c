@@ -7,6 +7,7 @@ void keyPressed(unsigned char c, int x, int y)
         case 27:
             exit(0);
             break;
+            /*
         case GLUT_KEY_UP:
             printf("%s\n", "up");
             break;
@@ -21,12 +22,15 @@ void keyPressed(unsigned char c, int x, int y)
             break;
         default:
             printf("%c\n", c);
+             */
     }
 }
 
 /*
  * Change movement directions from keyboard input.
  */
+
+
 void keyboard(float *height, float *angle, float *zoom)
 {
     if (glutKeyIsDown(27))
@@ -53,23 +57,14 @@ void keyboard(float *height, float *angle, float *zoom)
     }
     if (glutKeyIsDown('z'))
     {
-        *zoom -= 0.1;
+        *zoom -= 0.01;
     }
     if (glutKeyIsDown('x'))
     {
-        *zoom += 0.1;
+        *zoom += 0.01;
     }
 
 }
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -126,4 +121,4 @@ void keyboard(vec3* eye, vec3* center, vec3* up, float speed){
     };
 
 }
- */
+*/

@@ -20,11 +20,8 @@ void main(void)
 {
 	texCoord = inTexCoord;
 
-    //vec3 inNormal = vec3(0,1,0);
-    //vec3 inNormal = normalize(inPosition);
-
-    //ex_Normal = inverse(transpose(mat3(camMatrix * identityMatrix * modelMatrix))) * inNormal; // Phong, normal transformation
-    //ex_Surface = vec3(camMatrix * identityMatrix * modelMatrix * vec4(inPosition, 1.0));
+    ex_Normal = inverse(transpose(mat3(camMatrix * identityMatrix * modelMatrix))) * inNormal; // Phong, normal transformation
+    ex_Surface = vec3(camMatrix * identityMatrix * modelMatrix * vec4(inPosition, 1.0));
 
 	//gl_Position =  vec4(inPosition, 1.0);
 	gl_Position = projMatrix * camMatrix * identityMatrix * modelMatrix * vec4(inPosition, 1.0);
