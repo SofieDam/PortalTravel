@@ -350,7 +350,7 @@ void init(void)
 
     // Load texture
     glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
-    LoadTGATextureSimple("image/maskros512.tga", &tex);
+    LoadTGATextureSimple("image/ground_sand_2.tga", &tex);
     printError("init load texture");
 
     // Load terrain data
