@@ -9,7 +9,6 @@ in vec3 ex_Surface;
 
 void main(void)
 {
-
 	const vec3 light = vec3(0.6, 0.6, 0.6);
 	float diffuse, specular, shade;
 
@@ -27,13 +26,5 @@ void main(void)
 
 	shade = 1.0*diffuse + 1.0*specular;
 
-    //outColor = vec4(shade, shade, shade, 1.0);
-
-	//outColor = vec4(shade*color, 1.0);
-
-    //outColor = vec4(color, 1.0);
-
-	//outColor = vec4(0.8, 0.2, 0.8, 1.0);
-	//outColor = texture(tex, texCoord);
 	outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
 }

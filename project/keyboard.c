@@ -1,12 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
 /*
  * Write the pressed key.
  */
 void keyPressed(unsigned char c, int x, int y)
 {
     switch (c) {
-        case 27:
-            exit(0);
-            break;
             /*
         case GLUT_KEY_UP:
             printf("%s\n", "up");
@@ -29,14 +30,60 @@ void keyPressed(unsigned char c, int x, int y)
 /*
  * Change movement directions from keyboard input.
  */
+void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* horizontalHeadAngle)
+{
+    if (glutKeyIsDown(27))
+    {
+        exit(0);
+    }
+    if (glutKeyIsDown(GLUT_KEY_UP))
+    {
+        *verticalAngle += 0.01;
+    }
+    if (glutKeyIsDown(GLUT_KEY_DOWN))
+    {
+        *verticalAngle -= 0.01;
+    }
+    if (glutKeyIsDown(GLUT_KEY_RIGHT))
+    {
+        *horizontalAngle += 0.01;
+    }
+    if (glutKeyIsDown(GLUT_KEY_LEFT))
+    {
+        *horizontalAngle -= 0.01;
+    }
+    if (glutKeyIsDown('z'))
+    {
+        if (*R >= 1.02) {
+            *R -= 0.001;
+        }
+    }
+    if (glutKeyIsDown('x'))
+    {
+        *R += 0.001;
+    }
 
+    if (glutKeyIsDown('d')) {
 
+    };
+    if (glutKeyIsDown('a')) {
+
+    };
+    if (glutKeyIsDown('w')) {
+        *horizontalHeadAngle += 0.01;
+    };
+    if (glutKeyIsDown('s')) {
+        *horizontalHeadAngle -= 0.01;
+    };
+
+}
+
+/*
 void keyboard(float *height, float *angle, float *zoom)
 {
     if (glutKeyIsDown(27))
     {
         exit(0);
-        printf("case 27\n");
     }
 
     if (glutKeyIsDown(GLUT_KEY_UP))
@@ -65,6 +112,7 @@ void keyboard(float *height, float *angle, float *zoom)
     }
 
 }
+ */
 
 
 /*
