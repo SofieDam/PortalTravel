@@ -10,8 +10,10 @@
 #include "LoadTGA.h"
 
 #include "keyboard.c"
+//#include "islandWorld/skybox.c"
 #include "islandWorld/island.c"
 #include "forestWorld/forest.c"
+
 
 
 int world = 0;      // Decides which world we will draw
@@ -33,7 +35,6 @@ void init(void)
     //glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     printError("GL inits");
-
     initIslandWorld();
     initForestWorld();
 }

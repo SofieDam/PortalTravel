@@ -1,5 +1,6 @@
 #include <time.h>
 #include <math.h>
+#include "skybox.c"
 
 
 mat4 projectionMatrix_island, identityMatrix_island, modelMatrix_island, camMatrix_island;
@@ -326,6 +327,9 @@ Model* generateIsland()
 
 void initIslandWorld(void)
 {
+    // Skybox
+    initSkybox();
+    loadSkyboxTextures();
 
     projectionMatrix_island = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 100.0);
 
@@ -377,6 +381,8 @@ void displayIslandWorld(void)
     // clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Draw Skybox
+    displaySkybox(&R_island, &verticalAngle_island, &horizontalAngle_island, &horizontalHeadAngle_island);
 
     //camMatrix = lookAt(zoom*sin(angle),zoom*height,zoom*cos(angle), 0,0,0, 0,1,0);
 
