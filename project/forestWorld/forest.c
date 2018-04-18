@@ -1,36 +1,32 @@
 
 
-mat4 projectionMatrix, identityMatrix, modelMatrix, camMatrix;
+mat4 projectionMatrix_forest, identityMatrix_forest, modelMatrix_forest, camMatrix_forest, treeMatrix;
 
 // vertex array object
-Model *forest;
+Model *forest, *tree;
 
 // Reference to shader program
-GLuint program_forest;
+GLuint program_forest, program_tree;
 
 GLuint tex_grass;
-TextureData ttex; // terrain
+TextureData ttex_forest; // terrain
+
+//vec3 treeArray[];
+vec3 treeArray[6];
 
 
-float R, verticalAngle, horizontalAngle, horizontalHeadAngle;
+float R_forest, verticalAngle_forest, horizontalAngle_forest, horizontalHeadAngle_forest;
 
 /*
  * 1. Build a cube.
  * 2. Normalize every vertex which will result in a sphere.
- * 3. Add height (from greyscale-image) to sphere.
  */
 Model* generateForest()
 {
-    /*
     int i, r, c;
-    vec3 r_c_cube, r_c_sphere, r_c_ocean;
-    float island_height;
+    vec3 r_c_cube, r_c_sphere;
 
-    int w = ttex.width;
-
-
-    int cube_sides = 6;
-    float cube_width = 2.0;
+    int w = ttex_forest.width;
     float square_width = cube_width / (float)w;
 
     w += 1;             // need one extra vertex to scale from image properly
@@ -43,12 +39,6 @@ Model* generateForest()
     GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
     GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount);
 
-    sphereVertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
-    float height_ocean = 0.008;
-
-    float height = 0;
-    float height_textureData = 0;
-
     // Calculate vertices
     for( i=0; i<cube_sides; i++ )
         for( c=0; c<w; c++ ) {
@@ -60,104 +50,33 @@ Model* generateForest()
                 r_c_cube = MultMat3Vec3(cube_xyz_plane[i],r_c_cube);
                 r_c_cube = VectorAdd(cube_vertices[i], r_c_cube);
 
-                // Height
-                height_textureData = (ttex.imageData[(r + (c*w)) * (ttex.bpp/8)] / 50.0);
-                if (i==0) {
-                    island_height = generateIslandMask((float)w, (float)r, (float)c);
-                    height = height_textureData * square_width * island_height;
-                }
-
                 // Transform cube to sphere positions
                 r_c_sphere = Normalize(r_c_cube);
-
-                // Add ocean vertices
-                //r_c_ocean = VectorAdd(r_c_sphere, ScalarMult(Normalize(r_c_sphere),(height_ocean + (height_textureData * square_width / 5)))); // heightmap on water surface
-                r_c_ocean = VectorAdd(r_c_sphere, ScalarMult(Normalize(r_c_sphere),height_ocean));
-                sphereVertexArray[(r + (c*w) + (i*w*w)) * 3 + 0] = r_c_ocean.x;
-                sphereVertexArray[(r + (c*w) + (i*w*w)) * 3 + 1] = r_c_ocean.y;
-                sphereVertexArray[(r + (c*w) + (i*w*w)) * 3 + 2] = r_c_ocean.z;
-
-                // Add height
-                r_c_sphere = VectorAdd(r_c_sphere, ScalarMult(Normalize(r_c_sphere),height));
-
 
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 0] = r_c_sphere.x;
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 1] = r_c_sphere.y;
                 vertexArray[(r + (c*w) + (i*w*w)) * 3 + 2] = r_c_sphere.z;
 
 
+                calculateTextures(texCoordArray, w, i, r, c);
 
-                // Calculate texture coordinates
-                texCoordArray[(r + (c*w) + (i*w*w))*2 + 0] = -r;
-                texCoordArray[(r + (c*w) + (i*w*w))*2 + 1] = -c;
+
+                if ((c == 120) && (r == 120)) {
+                    treeArray[i] = r_c_sphere;
+                    //printf("x=%f, y=%f, z=%f\n", treeArray[i].x, treeArray[i].y, treeArray[i].z);
+                }
+
             }
         }
 
 
-    vec3 nv1, nv2, nv3;    // Neighboring vertices
     for( i=0; i<cube_sides; i++ ) {
         for( c=0; c<(w-1); c++ )
             for( r=0; r<(w-1); r++ ) {
-
-                // Calculate indices
-
-                // Triangle 1
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 0] = r + (c*w) + (i*w*w);
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 1] = (r+1) + (c*w) + (i*w*w);
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 2] = r + ((c+1)*w) + (i*w*w);
-                // Triangle 2
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 3] = (r+1) + (c*w) + (i*w*w);
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 4] = r + ((c+1)*w) + (i*w*w);
-                indexArray[(r + (c*(w-1)) + (i*(w-1)*(w-1)))*6 + 5] = (r+1) + ((c+1)*w) + (i*w*w);
-
-
-
-                // Calculate normal vectors.
-                // Pick three neighbor vertices, on all sides of the vertex,
-                // and use these three for calculating a normal vector.
-
-                nv1.x = vertexArray[(r + (c*w) + (i*w*w))*3 + 0];
-                nv1.y = vertexArray[(r + (c*w) + (i*w*w))*3 + 1];
-                nv1.z = vertexArray[(r + (c*w) + (i*w*w))*3 + 2];
-
-                nv2.x = vertexArray[((r+1) + (c*w) + (i*w*w))*3 + 0];
-                nv2.y = vertexArray[((r+1) + (c*w) + (i*w*w))*3 + 1];
-                nv2.z = vertexArray[((r+1) + (c*w) + (i*w*w))*3 + 2];
-
-                nv3.x = vertexArray[(r + ((c+1)*w) + (i*w*w))*3 + 0];
-                nv3.y = vertexArray[(r + ((c+1)*w) + (i*w*w))*3 + 1];
-                nv3.z = vertexArray[(r + ((c+1)*w) + (i*w*w))*3 + 2];
-
-                vec3 normalVector =  calculateNormalVector(nv1, nv2, nv3);
-
-                normalArray[(r + (c*w) + (i*w*w))*3 + 0] = normalVector.x;
-                normalArray[(r + (c*w) + (i*w*w))*3 + 1] = normalVector.y;
-                normalArray[(r + (c*w) + (i*w*w))*3 + 2] = normalVector.z;
-
-
-
+                calculateIndices(indexArray, w, i, r, c);
+                calculateNormals(vertexArray, normalArray, w, i, r, c);
             }
-
-
-        // Calculate the last normal vector.
-
-        nv1.x = vertexArray[(r + (c*w) + (i*w*w))*3 + 0];
-        nv1.y = vertexArray[(r + (c*w) + (i*w*w))*3 + 1];
-        nv1.z = vertexArray[(r + (c*w) + (i*w*w))*3 + 2];
-
-        nv2.x = vertexArray[((r-1) + (c*w) + (i*w*w))*3 + 0];
-        nv2.y = vertexArray[((r-1) + (c*w) + (i*w*w))*3 + 1];
-        nv2.z = vertexArray[((r-1) + (c*w) + (i*w*w))*3 + 2];
-
-        nv3.x = vertexArray[(r + ((c-1)*w) + (i*w*w))*3 + 0];
-        nv3.y = vertexArray[(r + ((c-1)*w) + (i*w*w))*3 + 1];
-        nv3.z = vertexArray[(r + ((c-1)*w) + (i*w*w))*3 + 2];
-
-        vec3 normalVector =  calculateNormalVector(nv1, nv2, nv3);
-
-        normalArray[(r + (c*w) + (i*w*w))*3 + 0] = normalVector.x;
-        normalArray[(r + (c*w) + (i*w*w))*3 + 1] = normalVector.y;
-        normalArray[(r + (c*w) + (i*w*w))*3 + 2] = normalVector.z;
+        calculateNormals(vertexArray, normalArray, w, i, r, c);     // Calculate the last normal vector.
     }
 
 
@@ -172,17 +91,13 @@ Model* generateForest()
             vertexCount,
             triangleCount);
 
-    //free(indexArray);
-    //free(vertexArray);
-
     return model;
-     */
-    return NULL;
 }
+
 
 void initForestWorld(void)
 {
-    projectionMatrix = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 100.0);
+    projectionMatrix_forest = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 100.0);
 
     // Load shader for island
     program_forest = loadShaders("forestWorld/forest.vert", "forestWorld/forest.frag");
@@ -194,42 +109,169 @@ void initForestWorld(void)
     printError("init load texture");
 
     // Load terrain data
-    LoadTGATextureData("image/fft-terrain.tga", &ttex);
+    LoadTGATextureData("image/fft-terrain.tga", &ttex_forest);
     printError("init terrain data");
 
     // Generate planet
     forest = generateForest();
     printError("init planet model");
 
+    program_tree = loadShaders("forestWorld/tree.vert", "forestWorld/tree.frag");
+    printError("init tree shader");
+    tree = LoadModelPlus("object/Tree.obj");
 
-    //identityMatrix = IdentityMatrix();
+
+
+    identityMatrix_forest = IdentityMatrix();
 
     // Model placement
+    modelMatrix_forest = S(1.0, 1.0, 1.0);
+
+
+
+    //treeMatrix = T(treeArray.x, treeArray.y, treeArray.z);
+
+    //vec3 n = {0,1,0};
+    //n = Normalize(n);
+    //n = VectorSub(treeArray,n);
+
+/*
+    treeMatrix = Mult(treeMatrix,Rx(acos(DotProduct(n,treeArray.x))));
+    treeMatrix = Mult(treeMatrix,Ry(acos(DotProduct(n,treeArray.y))));
+    treeMatrix = Mult(treeMatrix,Rz(acos(DotProduct(n,treeArray.z))));
+*/
+
+/*
+    treeMatrix = Mult(treeMatrix,Rx(treeArray.x));
+    treeMatrix = Mult(treeMatrix,Ry(treeArray.y));
+    treeMatrix = Mult(treeMatrix,Rz(treeArray.z));
+*/
+
+
+    // i=0, x=-0.571144, y=-0.571144, z=0.589568
     /*
-    modelMatrix = S(1.0, 1.0, 1.0);
-    modelMatrix = Mult(modelMatrix, Rz(1.8));
-    modelMatrix = Mult(modelMatrix, Rx(1.1));
-    modelMatrix = Mult(modelMatrix, Ry(-0.3));
+    vec3 up = {0,1,0};
+    up = Normalize(up);
+    GLfloat angle = DotProduct(up,treeArray);
+    float s = 1 / (sqrt( (1+angle)*2 ));
+    vec3 rotation = ScalarMult((CrossProduct(up,treeArray)), s);
+
+    treeMatrix = Mult(treeMatrix,Rx(acos(rotation.x)));
+    treeMatrix = Mult(treeMatrix,Ry(acos(rotation.y)));
+    treeMatrix = Mult(treeMatrix,Rz(acos(rotation.z)));
      */
+
+
+
+    // acos
+    // i = 1, x=0.589568, y=-0.571144, z=0.571144
+    // i = 5, x=0.571144, y=-0.589568, z=0.571144
+    /*
+    treeMatrix = Mult(treeMatrix,Rx(acosf(treeArray.x)));
+    treeMatrix = Mult(treeMatrix,Ry(acosf(treeArray.y)));
+    treeMatrix = Mult(treeMatrix,Rz(acosf(treeArray.z)));
+     */
+
+
+
+    //treeMatrix = Mult(treeMatrix,Rx(atanf(treeArray.x/n.x)));
+    //treeMatrix = Mult(treeMatrix,Ry(atanf(treeArray.y/n.y)));
+    //treeMatrix = Mult(treeMatrix,Rz(atanf(treeArray.z/n.z)));
+
+
+
+    //treeMatrix = Mult(treeMatrix,(S(0.05, 0.05, 0.05)));
+
+
+    //treeMatrix = T(n.x, n.y, n.z);
+
 
     // Camera placement
+    R_forest = 3.0;
+    verticalAngle_forest = 0;
+    horizontalAngle_forest = 1;
+    horizontalHeadAngle_forest = 0;
+
+    //R_forest = 1.05;
     /*
-    R = 5;
-    verticalAngle = 0;
-    horizontalAngle = 1;
-    horizontalHeadAngle = 1;
+    R_forest = 3.0;
+    verticalAngle_forest = 0;
+    horizontalAngle_forest = 1;
+    horizontalHeadAngle_forest = 1.5;
      */
 
-    /*
-    R = 1.05;
-    verticalAngle = 0;
-    horizontalAngle = 1;
-    horizontalHeadAngle = 1.5;
-     */
 
 }
 
+
 void displayForestWorld(void)
 {
+    // Handle keyboard
+    keyboard(&R_forest, &verticalAngle_forest, &horizontalAngle_forest, &horizontalHeadAngle_forest);
+
+
+    camMatrix_forest = lookAt(
+            R_forest * cos(verticalAngle_forest) * sin(horizontalAngle_forest),
+            R_forest * sin(verticalAngle_forest),
+            R_forest * cos(verticalAngle_forest) * cos(horizontalAngle_forest),
+
+            0, horizontalHeadAngle_forest, 0,
+
+            0, 1, 0);
+
+
+    // ---------------------------      Ground       ---------------------------
+    glUseProgram(program_forest);
+    glUniformMatrix4fv(glGetUniformLocation(program_forest, "projMatrix"), 1, GL_TRUE, projectionMatrix_forest.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_forest, "camMatrix"), 1, GL_TRUE, camMatrix_forest.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_forest, "identityMatrix"), 1, GL_TRUE, identityMatrix_forest.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_forest, "modelMatrix"), 1, GL_TRUE, modelMatrix_forest.m);
+
+    glBindTexture(GL_TEXTURE_2D, tex_grass);		// Bind Our Texture tex
+
+    DrawModel(forest, program_forest, "inPosition", "inNormal", "inTexCoord");
+
+    // ---------------------------      Trees       ---------------------------
+    glUseProgram(program_tree);
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "projMatrix"), 1, GL_TRUE, projectionMatrix_forest.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "camMatrix"), 1, GL_TRUE, camMatrix_forest.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "identityMatrix"), 1, GL_TRUE, identityMatrix_forest.m);
+
+    int i = 0;
+
+    for( i=0; i<6; i++ ) {
+
+        treeMatrix = T(treeArray[i].x, treeArray[i].y, treeArray[i].z);
+
+/*
+        treeMatrix = Mult(treeMatrix,Rx(cos(treeArray[i].x)));
+        treeMatrix = Mult(treeMatrix,Ry(cos(treeArray[i].y)));
+        treeMatrix = Mult(treeMatrix,Rz(cos(treeArray[i].z)));
+        */
+
+
+ // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+        vec3 up = {0,1,0};
+        up = Normalize(up);
+        GLfloat angle = DotProduct(up,treeArray[i]);
+
+        float s = 1 / (sqrt( (1+angle)*2 ));
+        vec3 rotation = ScalarMult((CrossProduct(up,treeArray[i])), s);
+
+        treeMatrix = Mult(treeMatrix,Rx(rotation.x));
+        treeMatrix = Mult(treeMatrix,Ry(rotation.y));
+        treeMatrix = Mult(treeMatrix,Rz(rotation.z));
+
+
+
+        treeMatrix = Mult(treeMatrix,(S(0.05, 0.05, 0.05)));
+
+
+
+        glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
+
+        glBindTexture(GL_TEXTURE_2D, tex_grass);		// Bind Our Texture tex
+        DrawModel(tree, program_tree, "inPosition", "inNormal", "inTexCoord");
+    }
 
 }

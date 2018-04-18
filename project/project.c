@@ -8,15 +8,16 @@
 #include "VectorUtils3.h"
 #include "loadobj.h"
 #include "LoadTGA.h"
+#include "cube.h"
 
 #include "keyboard.c"
-//#include "islandWorld/skybox.c"
+#include "help_functions.c"
+#include "skybox.c"
 #include "islandWorld/island.c"
 #include "forestWorld/forest.c"
 
 
-
-int world = 0;      // Decides which world we will draw
+int world = 1;      // Decides which world we will draw
 
 
 void timer(int i)
@@ -28,21 +29,32 @@ void timer(int i)
 
 void init(void)
 {
+
+
     // GL inits
-    //glClearColor(0.2,0.5,0.8,0);
     glClearColor(0.6, 0.6, 0.9, 0);
     glEnable(GL_DEPTH_TEST);
-    //glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     printError("GL inits");
+
+    initSkybox();
+
     initIslandWorld();
     initForestWorld();
+
+
 }
 
 void display(void)
 {
+    // clear the screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     if (world == 0) {
         displayIslandWorld();
+    }
+    else {
+        displayForestWorld();
     }
 
     glutSwapBuffers();
