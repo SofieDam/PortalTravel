@@ -105,7 +105,7 @@ void initForestWorld(void)
 
     // Load texture
     glUniform1i(glGetUniformLocation(program_forest, "tex"), 0); // Texture unit 0
-    LoadTGATextureSimple("image/grass.tga", &tex_grass);
+    LoadTGATextureSimple("image/grass_1.tga", &tex_grass);
     printError("init load texture");
 
     // Load terrain data
@@ -218,6 +218,10 @@ void displayForestWorld(void)
             0, horizontalHeadAngle_forest, 0,
 
             0, 1, 0);
+
+    // ---------------------------      Skybox       ---------------------------
+    // Display skybox
+    displaySkybox(projectionMatrix_forest, camMatrix_forest, identityMatrix_forest);
 
 
     // ---------------------------      Ground       ---------------------------

@@ -233,6 +233,9 @@ void displayIslandWorld(void)
 
             0, 1, 0);
 
+    // ---------------------------      Skybox       ---------------------------
+    // Display skybox
+    displaySkybox(projectionMatrix_island, camMatrix_island, identityMatrix_island);
 
 
     // ---------------------------      Ground       ---------------------------
@@ -272,11 +275,6 @@ void displayIslandWorld(void)
 
     // Disable blending
     glDisable(GL_BLEND);
-
-    // ---------------------------      Skybox       ---------------------------
-    // Display skybox
-    displaySkybox(projectionMatrix_island, camMatrix_island, identityMatrix_island);
-    //displaySkybox(&R_island, &verticalAngle_island, &horizontalAngle_island, &horizontalHeadAngle_island);
 
 
 }

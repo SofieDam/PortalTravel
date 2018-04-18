@@ -124,16 +124,11 @@ char *textureFileName[6] =
 
 
 
-
-
-
 void loadSkyboxTextures()
 {
     int i;
 
     glGenTextures(1, &cubemap);			// Generate OpenGL texture IDs
-
-    // Note all operations on GL_TEXTURE_CUBE_MAP, not GL_TEXTURE_2D
 
     // Load texture data and create ordinary texture objects (for skybox)
     for (i = 0; i < 6; i++)
@@ -180,47 +175,33 @@ void initSkybox()
         printf("Loading texture data %d done\n", i);
     }
 
-    //program_skybox = loadShaders("islandWorld/skybox.vert", "islandWorld/skybox.frag");
-    //projectionMatrix_skybox = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 100.0);
-    //glUniformMatrix4fv(glGetUniformLocation(program_skybox, "projMatrix"), 1, GL_TRUE, projectionMatrix_skybox.m);
     glUniform1i(glGetUniformLocation(program_skybox, "tex"), 0); // Texture unit 0
 
     loadSkyboxTextures();
 }
 
 
-//void displaySkybox(float *R, float *verticalAngle, float *horizontalAngle, float* horizontalHeadAngle)
 void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix)
 {
     int i;
 
+    // draw box
+    glDisable(GL_DEPTH_TEST);     // Turn off Z-buffer
     glUseProgram(program_skybox);
 
-// draw box
-    glDisable(GL_DEPTH_TEST);     // Turn off Z-buffer
-
-    /*
-    cameraMatrix_skybox = lookAt(
-            (*R) * cos(*verticalAngle) * sin(*horizontalAngle),
-            (*R) * sin(*verticalAngle),
-            (*R) * cos(*verticalAngle) * cos(*horizontalAngle),
-
-            0, (*horizontalHeadAngle), 0,
-
-            0, 1, 0);
-            */
+    projectionMatrix_skybox = projectionMatrix;
 
     cameraMatrix_skybox = cameraMatrix;
-
     cameraMatrix_skybox.m[3] = 0;
     cameraMatrix_skybox.m[7] = 0;
     cameraMatrix_skybox.m[11] = 0;
 
-    glUniformMatrix4fv(glGetUniformLocation(program_skybox, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_skybox, "projMatrix"), 1, GL_TRUE, projectionMatrix_skybox.m);
     glUniformMatrix4fv(glGetUniformLocation(program_skybox, "camMatrix"), 1, GL_TRUE, cameraMatrix_skybox.m);
     glUniformMatrix4fv(glGetUniformLocation(program_skybox, "identityMatrix"), 1, GL_TRUE, identityMatrix.m);
 
     glActiveTexture(GL_TEXTURE0); // Just make sure the texture unit match
+
     for (i = 0; i < 6; i++)
     {
         glBindTexture(GL_TEXTURE_2D, skyboxTex[i].texID);
@@ -230,7 +211,7 @@ void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix
 
     glEnable(GL_DEPTH_TEST);        // Turn on Z-buffer
 
-// Binding again just to be sure (for the day the code is mixed with others)
+    // Binding again just to be sure (for the day the code is mixed with others)
     //glActiveTexture(GL_TEXTURE0); // Just make sure the texture unit match
     //glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
 

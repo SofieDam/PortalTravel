@@ -17,7 +17,7 @@
 #include "forestWorld/forest.c"
 
 
-int world = 1;      // Decides which world we will draw
+int world = 0;      // Decides which world we will draw
 
 
 void timer(int i)
@@ -37,11 +37,9 @@ void init(void)
     glDisable(GL_CULL_FACE);
     printError("GL inits");
 
-    initSkybox();
-
     initIslandWorld();
     initForestWorld();
-
+    initSkybox();
 
 }
 
