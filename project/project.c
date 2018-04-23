@@ -17,7 +17,7 @@
 #include "forestWorld/forest.c"
 
 
-int world = 0;      // Decides which world we will draw
+int world = 1;      // Decides which world we will draw
 
 
 void timer(int i)
@@ -39,7 +39,7 @@ void init(void)
 
     initIslandWorld();
     initForestWorld();
-    initSkybox();
+    //initSkybox();
 
 }
 
@@ -72,5 +72,6 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyPressed);
 
     glutMainLoop();
+
     exit(0);
 }

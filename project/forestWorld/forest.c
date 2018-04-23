@@ -11,11 +11,11 @@ GLuint program_forest, program_tree;
 GLuint tex_grass;
 TextureData ttex_forest; // terrain
 
-//vec3 treeArray[];
-vec3 treeArray[6];
-
-
 float R_forest, verticalAngle_forest, horizontalAngle_forest, horizontalHeadAngle_forest;
+
+GLfloat *vertexArray;
+
+
 
 /*
  * 1. Build a cube.
@@ -34,7 +34,7 @@ Model* generateForest()
     int vertexCount = w*w*cube_sides;
     int triangleCount = (w-1) * (w-1) * 2 * cube_sides * 3;
 
-    GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+    vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
     GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount);
@@ -59,13 +59,6 @@ Model* generateForest()
 
 
                 calculateTextures(texCoordArray, w, i, r, c);
-
-
-                if ((c == 120) && (r == 120)) {
-                    treeArray[i] = r_c_sphere;
-                    //printf("x=%f, y=%f, z=%f\n", treeArray[i].x, treeArray[i].y, treeArray[i].z);
-                }
-
             }
         }
 
@@ -128,64 +121,6 @@ void initForestWorld(void)
     modelMatrix_forest = S(1.0, 1.0, 1.0);
 
 
-
-    //treeMatrix = T(treeArray.x, treeArray.y, treeArray.z);
-
-    //vec3 n = {0,1,0};
-    //n = Normalize(n);
-    //n = VectorSub(treeArray,n);
-
-/*
-    treeMatrix = Mult(treeMatrix,Rx(acos(DotProduct(n,treeArray.x))));
-    treeMatrix = Mult(treeMatrix,Ry(acos(DotProduct(n,treeArray.y))));
-    treeMatrix = Mult(treeMatrix,Rz(acos(DotProduct(n,treeArray.z))));
-*/
-
-/*
-    treeMatrix = Mult(treeMatrix,Rx(treeArray.x));
-    treeMatrix = Mult(treeMatrix,Ry(treeArray.y));
-    treeMatrix = Mult(treeMatrix,Rz(treeArray.z));
-*/
-
-
-    // i=0, x=-0.571144, y=-0.571144, z=0.589568
-    /*
-    vec3 up = {0,1,0};
-    up = Normalize(up);
-    GLfloat angle = DotProduct(up,treeArray);
-    float s = 1 / (sqrt( (1+angle)*2 ));
-    vec3 rotation = ScalarMult((CrossProduct(up,treeArray)), s);
-
-    treeMatrix = Mult(treeMatrix,Rx(acos(rotation.x)));
-    treeMatrix = Mult(treeMatrix,Ry(acos(rotation.y)));
-    treeMatrix = Mult(treeMatrix,Rz(acos(rotation.z)));
-     */
-
-
-
-    // acos
-    // i = 1, x=0.589568, y=-0.571144, z=0.571144
-    // i = 5, x=0.571144, y=-0.589568, z=0.571144
-    /*
-    treeMatrix = Mult(treeMatrix,Rx(acosf(treeArray.x)));
-    treeMatrix = Mult(treeMatrix,Ry(acosf(treeArray.y)));
-    treeMatrix = Mult(treeMatrix,Rz(acosf(treeArray.z)));
-     */
-
-
-
-    //treeMatrix = Mult(treeMatrix,Rx(atanf(treeArray.x/n.x)));
-    //treeMatrix = Mult(treeMatrix,Ry(atanf(treeArray.y/n.y)));
-    //treeMatrix = Mult(treeMatrix,Rz(atanf(treeArray.z/n.z)));
-
-
-
-    //treeMatrix = Mult(treeMatrix,(S(0.05, 0.05, 0.05)));
-
-
-    //treeMatrix = T(n.x, n.y, n.z);
-
-
     // Camera placement
     R_forest = 3.0;
     verticalAngle_forest = 0;
@@ -221,10 +156,11 @@ void displayForestWorld(void)
 
     // ---------------------------      Skybox       ---------------------------
     // Display skybox
-    displaySkybox(projectionMatrix_forest, camMatrix_forest, identityMatrix_forest);
+    //displaySkybox(projectionMatrix_forest, camMatrix_forest, identityMatrix_forest);
 
 
     // ---------------------------      Ground       ---------------------------
+
     glUseProgram(program_forest);
     glUniformMatrix4fv(glGetUniformLocation(program_forest, "projMatrix"), 1, GL_TRUE, projectionMatrix_forest.m);
     glUniformMatrix4fv(glGetUniformLocation(program_forest, "camMatrix"), 1, GL_TRUE, camMatrix_forest.m);
@@ -235,6 +171,7 @@ void displayForestWorld(void)
 
     DrawModel(forest, program_forest, "inPosition", "inNormal", "inTexCoord");
 
+
     // ---------------------------      Trees       ---------------------------
     glUseProgram(program_tree);
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "projMatrix"), 1, GL_TRUE, projectionMatrix_forest.m);
@@ -242,40 +179,38 @@ void displayForestWorld(void)
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "identityMatrix"), 1, GL_TRUE, identityMatrix_forest.m);
 
     int i = 0;
+    int c = 0;
+    int r = 0;
+    int w = ttex_forest.width + 1;
+    vec3 treePosition;
+    for( i=0; i<cube_sides; i++ )
+        for( c=0; c<w; c++ )
+            for( r=0; r<w; r++ ) {
+                if (((c % 50) == 0) && ((r % 50) == 0)) {
+                    treePosition = SetVector(vertexArray[(r + (c*w) + (i*w*w)) * 3 + 0],
+                                             vertexArray[(r + (c*w) + (i*w*w)) * 3 + 1],
+                                             vertexArray[(r + (c*w) + (i*w*w)) * 3 + 2]);
 
-    for( i=0; i<6; i++ ) {
+                    vec3 y = Normalize(treePosition);
 
-        treeMatrix = T(treeArray[i].x, treeArray[i].y, treeArray[i].z);
+                    vec3 x_hat = {1,0,0};
+                    x_hat = Normalize(x_hat);
 
-/*
-        treeMatrix = Mult(treeMatrix,Rx(cos(treeArray[i].x)));
-        treeMatrix = Mult(treeMatrix,Ry(cos(treeArray[i].y)));
-        treeMatrix = Mult(treeMatrix,Rz(cos(treeArray[i].z)));
-        */
+                    vec3 z = Normalize(CrossProduct(x_hat,y));
+                    vec3 x = Normalize(CrossProduct(y,z));
 
-
- // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
-        vec3 up = {0,1,0};
-        up = Normalize(up);
-        GLfloat angle = DotProduct(up,treeArray[i]);
-
-        float s = 1 / (sqrt( (1+angle)*2 ));
-        vec3 rotation = ScalarMult((CrossProduct(up,treeArray[i])), s);
-
-        treeMatrix = Mult(treeMatrix,Rx(rotation.x));
-        treeMatrix = Mult(treeMatrix,Ry(rotation.y));
-        treeMatrix = Mult(treeMatrix,Rz(rotation.z));
-
-
-
-        treeMatrix = Mult(treeMatrix,(S(0.05, 0.05, 0.05)));
+                    mat4 rotationMatrix = {{x.x, y.x, z.x, treePosition.x,
+                                                   x.y, y.y, z.y, treePosition.y,
+                                                   x.z, y.z, z.z, treePosition.z,
+                                                   0.0, 0.0, 0.0, 1.0}};
+                    treeMatrix = Mult(rotationMatrix,(S(0.01, 0.01, 0.01)));
 
 
+                    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
 
-        glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
+                    glBindTexture(GL_TEXTURE_2D, tex_grass);		// Bind Our Texture tex
+                    DrawModel(tree, program_tree, "inPosition", "inNormal", "inTexCoord");
 
-        glBindTexture(GL_TEXTURE_2D, tex_grass);		// Bind Our Texture tex
-        DrawModel(tree, program_tree, "inPosition", "inNormal", "inTexCoord");
-    }
-
+                }
+            }
 }
