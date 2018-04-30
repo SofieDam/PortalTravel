@@ -2,7 +2,7 @@
 
 in vec3 inPosition;
 in vec3 inNormal;
-in vec2 inTexCoord;
+//in vec2 inTexCoord;
 //out vec2 texCoord;
 
 // NY
@@ -23,18 +23,15 @@ void main(void)
 
 	vec3 position = inPosition;
 
-    // Waves
-    // https://www.alanzucconi.com/2017/06/20/tentacle-suckers-shader/
+    // Create "waves"
     float amplitude = 0.001;       // metres
-    float period  = 5;        // seconds
-    float twoPi = 6.28318530718;  // 2*pi
+    float period  = 5;             // seconds
+    float twoPi = 6.28318530718;   // 2*pi
     float time = (sin(currentTime / period * twoPi) + 1.0) / 2.0;
     position += inNormal * time * amplitude;
 
-    ex_Normal = inverse(transpose(mat3(camMatrix * identityMatrix * modelMatrix))) * inNormal; // Phong, normal transformation
-
+    ex_Normal = inverse(transpose(mat3(camMatrix * identityMatrix * modelMatrix))) * inNormal;
     ex_Surface = vec3(camMatrix * identityMatrix * modelMatrix * vec4(position, 1.0));
+
     gl_Position = projMatrix * camMatrix * identityMatrix * modelMatrix * vec4(position, 1.0);
-    //ex_Surface = vec3(camMatrix * identityMatrix * modelMatrix * vec4(inPosition, 1.0));
-	//gl_Position = projMatrix * camMatrix * identityMatrix * modelMatrix * vec4(inPosition, 1.0);
 }

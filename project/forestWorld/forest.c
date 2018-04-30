@@ -1,4 +1,6 @@
-
+/*
+ * Create and draw everything connected to the forest world.
+ */
 
 mat4 projectionMatrix_forest, identityMatrix_forest, modelMatrix_forest, camMatrix_forest, treeMatrix;
 
@@ -35,7 +37,6 @@ Model* generateForest()
     int triangleCount = (w-1) * (w-1) * 2 * cube_sides * 3;
 
     vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
-    GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
     GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount);
 
@@ -67,9 +68,7 @@ Model* generateForest()
         for( c=0; c<(w-1); c++ )
             for( r=0; r<(w-1); r++ ) {
                 calculateIndices(indexArray, w, i, r, c);
-                calculateNormals(vertexArray, normalArray, w, i, r, c);
             }
-        calculateNormals(vertexArray, normalArray, w, i, r, c);     // Calculate the last normal vector.
     }
 
 
@@ -77,7 +76,7 @@ Model* generateForest()
 // Create Model and upload to GPU
     Model* model = LoadDataToModel(
             vertexArray,
-            normalArray,
+            vertexArray,
             texCoordArray,
             NULL,
             indexArray,
@@ -90,7 +89,7 @@ Model* generateForest()
 
 void initForestWorld(void)
 {
-    projectionMatrix_forest = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 100.0);
+    projectionMatrix_forest = frustum(-0.001, 0.001, -0.001, 0.001, 0.002, 10.0);
 
     // Load shader for island
     program_forest = loadShaders("forestWorld/forest.vert", "forestWorld/forest.frag");
@@ -144,19 +143,18 @@ void displayForestWorld(void)
     // Handle keyboard
     keyboard(&R_forest, &verticalAngle_forest, &horizontalAngle_forest, &horizontalHeadAngle_forest);
 
-
+    // Update camera matrix
     camMatrix_forest = lookAt(
-            R_forest * cos(verticalAngle_forest) * sin(horizontalAngle_forest),
-            R_forest * sin(verticalAngle_forest),
             R_forest * cos(verticalAngle_forest) * cos(horizontalAngle_forest),
+            R_forest * sin(verticalAngle_forest),
+            R_forest * cos(verticalAngle_forest) * sin(horizontalAngle_forest),
 
             0, horizontalHeadAngle_forest, 0,
 
             0, 1, 0);
 
     // ---------------------------      Skybox       ---------------------------
-    // Display skybox
-    //displaySkybox(projectionMatrix_forest, camMatrix_forest, identityMatrix_forest);
+    displaySkybox(projectionMatrix_forest, camMatrix_forest, identityMatrix_forest);
 
 
     // ---------------------------      Ground       ---------------------------

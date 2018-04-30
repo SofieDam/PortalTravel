@@ -11,7 +11,7 @@ TextureData skyboxTex[6];
 
 mat4 cameraMatrix_skybox, projectionMatrix_skybox;
 
-GLfloat skybox_vertices[6][6*3] =
+GLfloat skybox_vertices[6][4*3] =
         {
                 { // +x
                         0.5,-0.5,-0.5,		// 1
@@ -51,41 +51,47 @@ GLfloat skybox_vertices[6][6*3] =
                 }
         };
 
-GLfloat skybox_texcoord[6][6*2] =
+GLfloat skybox_texcoord[6][4*2] =
         {
                 {
+                        // Left
                         1.0, 1.0,
-                        1.0, 0.0, // left OK
+                        1.0, 0.0,
                         0.0, 0.0,
                         0.0, 1.0,
                 },
                 {
-                        0.0, 1.0, // right OK
+                        // Right
+                        0.0, 1.0,
                         1.0, 1.0,
                         1.0, 0.0,
                         0.0, 0.0,
                 },
                 {
-                        1.0, 0.0, // top OK
+                        // Top
+                        1.0, 0.0,
                         0.0, 0.0,
                         0.0, 1.0,
                         1.0, 1.0,
                 },
                 {
+                        // Bottom
                         0.0, 1.0,
                         1.0, 1.0,
-                        1.0, 0.0, // bottom
+                        1.0, 0.0,
                         0.0, 0.0,
                 },
                 {
+                        // Back
                         0.0, 1.0,
                         1.0, 1.0,
-                        1.0, 0.0, // back OK
+                        1.0, 0.0,
                         0.0, 0.0,
                 },
                 {
+                        // Front
                         1.0, 1.0,
-                        1.0, 0.0, // front OK
+                        1.0, 0.0,
                         0.0, 0.0,
                         0.0, 1.0,
                 }
@@ -123,14 +129,15 @@ char *textureFileName[6] =
         };
 
 
-
+/*
 void loadSkyboxTextures()
 {
     int i;
 
-    glGenTextures(1, &cubemap);			// Generate OpenGL texture IDs
+    //glGenTextures(1, &cubemap);			// Generate OpenGL texture IDs
 
     // Load texture data and create ordinary texture objects (for skybox)
+
     for (i = 0; i < 6; i++)
     {
         printf("Loading texture %s\n", textureFileName[i+TEXTURE_OFFSET]);
@@ -138,6 +145,9 @@ void loadSkyboxTextures()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
+
+
+
     // Load to cube map
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, skyboxTex[0].w, skyboxTex[0].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[0].imageData);
@@ -153,11 +163,13 @@ void loadSkyboxTextures()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+
 }
+*/
 
 void initSkybox()
 {
-    program_skybox = loadShaders("skybox.vert", "skybox.frag");
+    program_skybox = loadShaders("skybox/skybox.vert", "skybox/skybox.frag");
     glUseProgram(program_skybox);
 
 
@@ -172,12 +184,17 @@ void initSkybox()
                 skybox_indices[i],
                 4,
                 6);
-        printf("Loading texture data %d done\n", i);
+        //printf("Loading texture data %d done\n", i);
+        // printf("Loading texture %s\n", textureFileName[i+TEXTURE_OFFSET]);
+
+        LoadTGATexture(textureFileName[i+TEXTURE_OFFSET], &skyboxTex[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     glUniform1i(glGetUniformLocation(program_skybox, "tex"), 0); // Texture unit 0
 
-    loadSkyboxTextures();
+    //loadSkyboxTextures();
 }
 
 
@@ -185,9 +202,10 @@ void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix
 {
     int i;
 
+    glUseProgram(program_skybox);
+
     // draw box
     glDisable(GL_DEPTH_TEST);     // Turn off Z-buffer
-    glUseProgram(program_skybox);
 
     projectionMatrix_skybox = projectionMatrix;
 

@@ -1,4 +1,3 @@
-#include "VectorUtils3.h"
 
 // Calculates normal vector for triangle
 vec3 calculateNormalVector(vec3 nv1, vec3 nv2, vec3 nv3){
