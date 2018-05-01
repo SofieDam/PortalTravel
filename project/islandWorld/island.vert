@@ -15,7 +15,6 @@ out vec3 ex_Normal;
 out vec3 ex_Surface;
 
 
-
 void main(void)
 {
 	texCoord = inTexCoord;

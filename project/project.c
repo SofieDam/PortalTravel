@@ -21,7 +21,7 @@
 int screen_size = 800;
 
 // Decides which world we will draw
-int world = 2;                  // {0,1,2}
+int world = 1;                  // {0,1,2}
 
 
 void timer(int i)

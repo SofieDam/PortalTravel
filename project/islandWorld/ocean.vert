@@ -2,10 +2,7 @@
 
 in vec3 inPosition;
 in vec3 inNormal;
-//in vec2 inTexCoord;
-//out vec2 texCoord;
 
-// NY
 uniform mat4 projMatrix;
 uniform mat4 camMatrix;
 uniform mat4 identityMatrix;
@@ -19,8 +16,6 @@ out vec3 ex_Surface;
 
 void main(void)
 {
-	//texCoord = inTexCoord;
-
 	vec3 position = inPosition;
 
     // Create "waves"

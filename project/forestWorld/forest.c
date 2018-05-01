@@ -214,7 +214,7 @@ void displayForestWorld(void)
     DrawModel(forest, program_forest, "inPosition", "inNormal", "inTexCoord");
 
 
-    // ---------------------------      Trees       ---------------------------
+    // ---------------------------      Objects       ---------------------------
     glUseProgram(program_tree);
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "projMatrix"), 1, GL_TRUE, projectionMatrix_forest.m);
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "camMatrix"), 1, GL_TRUE, camMatrix_forest.m);

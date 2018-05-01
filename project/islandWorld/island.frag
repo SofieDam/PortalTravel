@@ -26,5 +26,5 @@ void main(void)
 
 	shade = 1.0*diffuse + 1.0*specular;
 
-	outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
+    outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
 }

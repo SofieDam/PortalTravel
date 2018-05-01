@@ -5,19 +5,20 @@
 #include <time.h>
 
 // Model
-Model *island, *ocean;
+Model *island, *ocean, *boat;
 
 // Shader program
 GLuint program_island, program_ocean;
 
 // Texture
-GLuint tex_sand, tex_water;
+GLuint tex_sand, tex_boat;
 
 // Height-map
 TextureData ttex_island;
 
 // Matrices
 mat4 projectionMatrix_island, identityMatrix_island, modelMatrix_island, camMatrix_island;
+mat4 modelMatrix_object;
 
 // Camera
 float R_island, verticalAngle_island, horizontalAngle_island, horizontalHeadAngle_island;
@@ -25,6 +26,10 @@ float R_island, verticalAngle_island, horizontalAngle_island, horizontalHeadAngl
 // Time
 time_t rawtime;
 struct tm * currentTime;
+
+// Sphere vertices for ocean
+GLfloat *sphereVertexArray;
+GLfloat *vertexArray;
 
 // Height for ocean
 const float height_ocean = 0.008;
@@ -64,11 +69,12 @@ void generateIslandPlanet()
 
     int vertexCount = w*w*cube_sides;
     int triangleCount = (w-1) * (w-1) * 2 * cube_sides * 3;
-    GLfloat *vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
+    vertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat *normalArray = malloc(sizeof(GLfloat) * 3 * vertexCount);
     GLfloat *texCoordArray = malloc(sizeof(GLfloat) * 2 * vertexCount);
     GLuint *indexArray = malloc(sizeof(GLuint) * triangleCount);
-    GLfloat *sphereVertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount);    // Sphere vertices for ocean
+
+    sphereVertexArray = malloc(sizeof(GLfloat) * 3 * vertexCount); // Sphere vertices for ocean
 
     float height = 0;
     float height_textureData = 0;
@@ -100,7 +106,7 @@ void generateIslandPlanet()
                 sphereVertexArray[(r + (c*w) + (i*w*w)) * 3 + 1] = r_c_ocean.y;
                 sphereVertexArray[(r + (c*w) + (i*w*w)) * 3 + 2] = r_c_ocean.z;
 
-                // Add height
+                // Add height to island
                 r_c_sphere = VectorAdd(r_c_sphere, ScalarMult(Normalize(r_c_sphere),height));
 
 
@@ -153,8 +159,10 @@ void initIslandWorld(void)
     // Load texture
     glUniform1i(glGetUniformLocation(program_island, "tex"), 0);
     LoadTGATextureSimple("image/ground_sand_2.tga", &tex_sand);
-    //LoadTGATextureSimple("image/water.tga", &tex_water);
+    LoadTGATextureSimple("image/wood.tga", &tex_boat);
 
+    // Load object
+    boat = LoadModelPlus("object/boat.obj");
 
     // Load terrain data
     LoadTGATextureData("image/fft-terrain.tga", &ttex_island);
@@ -179,6 +187,30 @@ void initIslandWorld(void)
     horizontalAngle_island = 0.55;
     horizontalHeadAngle_island = 1.5;
 }
+
+// Calculate object position
+void objectPosition(int i, int c, int r, int w, float scale, mat4 *modelMatrix, GLfloat *vertices)
+{
+    vec3 position = SetVector(vertices[(r + (c * w) + (i * w * w)) * 3 + 0],
+                              vertices[(r + (c * w) + (i * w * w)) * 3 + 1],
+                              vertices[(r + (c * w) + (i * w * w)) * 3 + 2]);
+
+    vec3 y = Normalize(position);
+
+    vec3 x_hat = {1, 0, 0};
+    x_hat = Normalize(x_hat);
+
+    vec3 z = Normalize(CrossProduct(x_hat, y));
+    vec3 x = Normalize(CrossProduct(y, z));
+
+    mat4 rotationMatrix = {{x.x, y.x, z.x, position.x,
+                                   x.y, y.y, z.y, position.y,
+                                   x.z, y.z, z.z, position.z,
+                                   0.0, 0.0, 0.0, 1.0}};
+
+    *modelMatrix = Mult(rotationMatrix, (S(scale, scale, scale)));
+}
+
 
 void displayIslandWorld(void)
 {
@@ -207,9 +239,47 @@ void displayIslandWorld(void)
     glUniformMatrix4fv(glGetUniformLocation(program_island, "identityMatrix"), 1, GL_TRUE, identityMatrix_island.m);
     glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_island.m);
 
-    glBindTexture(GL_TEXTURE_2D, tex_sand);		// Bind Our Texture tex
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex_sand);
+
     DrawModel(island, program_island, "inPosition", "inNormal", "inTexCoord");
 
+    // ---------------------------      Object       ---------------------------
+
+    int w = ttex_island.width + 1;
+    int i, c, r;
+    for( i=0; i<cube_sides; i++ )
+        for( c=0; c<w; c++ ) {
+            for (r = 0; r < w; r++) {
+
+                if (i == 2)
+                {
+                    if ((c==100) && (r==100))
+                    {
+                        // Floating boat
+                        objectPosition(i, c, r, w, 0.005, &modelMatrix_object, sphereVertexArray);
+                        glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
+                        glBindTexture(GL_TEXTURE_2D, tex_boat);
+                        DrawModel(boat, program_island, "inPosition", "inNormal", "inTexCoord");
+                    }
+                }
+
+
+                if ((i == 4) || (i == 3))
+                {
+                    if ((80 < c) && (c < 100) && (80 < r) && (r < 100))
+                        if (((c % 8) == 0) && ((r % 8) == 0)) {
+
+                            // Boat at bottom
+                            objectPosition(i, c, r, w, 0.002, &modelMatrix_object, vertexArray);
+                            glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
+                            glBindTexture(GL_TEXTURE_2D, tex_boat);
+                            DrawModel(boat, program_island, "inPosition", "inNormal", "inTexCoord");
+                        }
+                }
+
+            }
+        }
 
     // ---------------------------      Ocean       ---------------------------
 
@@ -229,11 +299,11 @@ void displayIslandWorld(void)
     currentTime = localtime ( &rawtime );
     glUniform1f(glGetUniformLocation(program_ocean, "currentTime"), (float)currentTime->tm_sec);
 
-    //glBindTexture(GL_TEXTURE_2D, tex_water);		// Bind Our Texture tex
     DrawModel(ocean, program_ocean, "inPosition", "inNormal", NULL);
 
     // Disable blending
     glDisable(GL_BLEND);
+
 
 
 }
