@@ -66,18 +66,24 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
          */
 
         *R -= 0.1;
+
+        /*
         if (*R <= 1.01) {
             *R = 1.01;
         }
+         */
     }
     if (glutKeyIsDown('x'))
     {
         //*R += 0.001;
         //*R += 0.01;
         *R += 0.1;
+
+        /*
         if (*R >= 1.50) {
             *R = 1.50;
         }
+         */
     }
 
     if (glutKeyIsDown('d')) {

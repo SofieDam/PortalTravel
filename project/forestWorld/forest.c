@@ -283,4 +283,6 @@ void displayForestWorld(void)
 
             }
         }
+
+    glDisable(GL_BLEND); // Disable blending
     }

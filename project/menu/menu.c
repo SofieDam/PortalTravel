@@ -11,12 +11,12 @@ Model *square_model;
 
 // Textures
 GLuint tex_button_island, tex_button_forest, tex_button_exit, tex_button_background;
-GLuint tex_portal_island;
-GLuint tex_open_portal, tex_portal_i;
+GLuint tex_portal_island, tex_portal_forest;
+GLuint tex_open_portal, tex_portal_i, tex_portal_f;
 
 // Matrices for model transformation and scaling
 mat4 modelMatrix_button_island, modelMatrix_button_forest, modelMatrix_button_exit, modelMatrix_button_background;
-mat4  modelMatrix_portal_island;
+mat4  modelMatrix_portal_menu;
 mat4  modelMatrix_open_portal, modelMatrix_portal;
 
 int s_size, wrld;
@@ -184,11 +184,13 @@ void initMenu(int s, int w)
     glUniform1i(glGetUniformLocation(program_menu, "tex"), 0); // Texture unit 0
     LoadTGATextureSimple("image/i_world.tga", &tex_button_island);
     LoadTGATextureSimple("image/portal_i_menu.tga", &tex_portal_island);
+    LoadTGATextureSimple("image/portal_f_menu.tga", &tex_portal_forest);
     LoadTGATextureSimple("image/f_world.tga", &tex_button_forest);
     LoadTGATextureSimple("image/exit.tga", &tex_button_exit);
     LoadTGATextureSimple("image/background.tga", &tex_button_background);
     LoadTGATextureSimple("image/open_portal.tga", &tex_open_portal);
     LoadTGATextureSimple("image/portal_i.tga", &tex_portal_i);
+    LoadTGATextureSimple("image/portal_f.tga", &tex_portal_f);
 
     square_model = LoadDataToModel(
             menu_vertices,
@@ -208,7 +210,7 @@ void initMenu(int s, int w)
 
 
     // Init portal menu
-    modelMatrix_portal_island = Mult(T(-0.92, 0.92, 0.0), S(0.06, 0.06, 0.06));
+    modelMatrix_portal_menu = Mult(T(-0.92, 0.92, 0.0), S(0.06, 0.06, 0.06));
     modelMatrix_open_portal = S(1.0, 1.0, 1.0);
 
     // Initialize values for calculation in mouseEvent() and mouseOverListener()
@@ -296,9 +298,9 @@ void drawPortalMenu(GLuint tex)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUniformMatrix4fv(glGetUniformLocation(program_menu, "modelMatrix"), 1, GL_TRUE, modelMatrix_portal_island.m);
+    glUniformMatrix4fv(glGetUniformLocation(program_menu, "modelMatrix"), 1, GL_TRUE, modelMatrix_portal_menu.m);
     glUniform1i(glGetUniformLocation(program_menu, "mouseOver"), mouseOver_portal);
-    glBindTexture(GL_TEXTURE_2D, tex_portal_island);
+    glBindTexture(GL_TEXTURE_2D, tex);
     DrawModel(square_model, program_menu, "inPosition", NULL, "inTexCoord");
 
     // Disable blending
@@ -309,6 +311,7 @@ void drawPortalMenu(GLuint tex)
 void displayPortalMenu_forestWorld(void)
 {
     glUseProgram(program_menu);
+    glActiveTexture(GL_TEXTURE0);
 
     if (portalAnimation == 1)
     {
@@ -316,17 +319,18 @@ void displayPortalMenu_forestWorld(void)
     }
     else if (portalAnimation == 2)
     {
-        drawPortal(tex_portal_i, 1);
+        drawPortal(tex_portal_f, 2);
     }
     else
     {
-        drawPortalMenu(tex_portal_island);
+        drawPortalMenu(tex_portal_forest);
     }
 }
 
 void displayPortalMenu_islandWorld(void)
 {
     glUseProgram(program_menu);
+    glActiveTexture(GL_TEXTURE0);
 
     if (portalAnimation == 1)
     {
@@ -334,7 +338,7 @@ void displayPortalMenu_islandWorld(void)
     }
     else if (portalAnimation == 2) {
 
-        drawPortal(tex_portal_i, 2);
+        drawPortal(tex_portal_i, 1);
     }
     else
     {

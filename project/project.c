@@ -21,7 +21,7 @@
 int screen_size = 800;
 
 // Decides which world we will draw
-int world = 0;                  // {0,1,2}
+int world = 2;                  // {0,1,2}
 
 
 void timer(int i)
@@ -63,14 +63,14 @@ void display(void)
     else if (world == 1)
     {
         displayIslandWorld();
-        displayPortalMenu_islandWorld();
+        displayPortalMenu_forestWorld();
     }
 
     // Forest world
     else if (world == 2)
     {
         displayForestWorld();
-        displayPortalMenu_forestWorld();
+        displayPortalMenu_islandWorld();
     }
 
     // Error
