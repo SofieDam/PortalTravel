@@ -110,62 +110,16 @@ GLuint skybox_indices[6][6] =
 
 char *textureFileName[6] =
         {
-                /*
-                "image/skyrender0004.tga",
-                "image/skyrender0001.tga",
-                "image/skyrender0003.tga",
-                "image/skyrender0006.tga",
-                "image/skyrender0002.tga",
-                "image/skyrender0005.tga",
-                */
 
-                "image/sky-blue.tga",   //left
-                "image/sky-blue.tga",   //right
-                "image/sky-blue.tga",   //top
-                "image/sky-blue.tga",   //botton
-                "image/sky-blue.tga",   //back
-                "image/sky-blue.tga",   //front
+                "image/sky.tga",   //left
+                "image/sky.tga",   //right
+                "image/sky.tga",   //top
+                "image/sky.tga",   //botton
+                "image/sky.tga",   //back
+                "image/sky.tga",   //front
 
         };
 
-
-/*
-void loadSkyboxTextures()
-{
-    int i;
-
-    //glGenTextures(1, &cubemap);			// Generate OpenGL texture IDs
-
-    // Load texture data and create ordinary texture objects (for skybox)
-
-    for (i = 0; i < 6; i++)
-    {
-        printf("Loading texture %s\n", textureFileName[i+TEXTURE_OFFSET]);
-        LoadTGATexture(textureFileName[i+TEXTURE_OFFSET], &skyboxTex[i]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-
-
-
-    // Load to cube map
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, skyboxTex[0].w, skyboxTex[0].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[0].imageData);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, skyboxTex[1].w, skyboxTex[1].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[1].imageData);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, skyboxTex[2].w, skyboxTex[2].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[2].imageData);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, skyboxTex[3].w, skyboxTex[3].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[3].imageData);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, skyboxTex[4].w, skyboxTex[4].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[4].imageData);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, skyboxTex[5].w, skyboxTex[5].h, 0, GL_RGBA, GL_UNSIGNED_BYTE, skyboxTex[5].imageData);
-
-    //glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-
-}
-*/
 
 void initSkybox()
 {

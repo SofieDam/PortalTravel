@@ -38,22 +38,22 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
     if (glutKeyIsDown(GLUT_KEY_UP))
     {
         if (*verticalAngle < (M_PI/2 - 0.001)) {
-            *verticalAngle += 0.01;
+            *verticalAngle += 0.1;
         }
     }
     if (glutKeyIsDown(GLUT_KEY_DOWN))
     {
         if (*verticalAngle > -(M_PI/2 - 0.001)) {
-            *verticalAngle -= 0.01;
+            *verticalAngle -= 0.1;
         }
     }
     if (glutKeyIsDown(GLUT_KEY_RIGHT))
     {
-        *horizontalAngle -= 0.01;
+        *horizontalAngle -= 0.1;
     }
     if (glutKeyIsDown(GLUT_KEY_LEFT))
     {
-        *horizontalAngle += 0.01;
+        *horizontalAngle += 0.1;
     }
     if (glutKeyIsDown('z'))
     {
@@ -61,13 +61,23 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
         if (*R >= 1.02) {
             *R -= 0.001;
         }
-         */
+
         *R -= 0.01;
+         */
+
+        *R -= 0.1;
+        if (*R <= 1.01) {
+            *R = 1.01;
+        }
     }
     if (glutKeyIsDown('x'))
     {
         //*R += 0.001;
-        *R += 0.01;
+        //*R += 0.01;
+        *R += 0.1;
+        if (*R >= 1.50) {
+            *R = 1.50;
+        }
     }
 
     if (glutKeyIsDown('d')) {
@@ -77,10 +87,10 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
 
     };
     if (glutKeyIsDown('w')) {
-        *horizontalHeadAngle += 0.01;
+        *horizontalHeadAngle += 0.1;
     };
     if (glutKeyIsDown('s')) {
-        *horizontalHeadAngle -= 0.01;
+        *horizontalHeadAngle -= 0.1;
     };
 
 }

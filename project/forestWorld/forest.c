@@ -5,12 +5,12 @@
 mat4 projectionMatrix_forest, identityMatrix_forest, modelMatrix_forest, camMatrix_forest, treeMatrix;
 
 // vertex array object
-Model *forest, *tree;
+Model *forest, *tree_fir, *maple_leaves, *maple_stem, *stump, *rock;
 
 // Reference to shader program
 GLuint program_forest, program_tree;
 
-GLuint tex_grass;
+GLuint tex_grass, texBranch, texMapleLeaves, texMapleStem, texStump, texRock, texPalm;
 TextureData ttex_forest; // terrain
 
 float R_forest, verticalAngle_forest, horizontalAngle_forest, horizontalHeadAngle_forest;
@@ -86,6 +86,29 @@ Model* generateForest()
     return model;
 }
 
+// Calculate tree position
+void treeDisplay(int i, int c, int r, int w, float scaleX, float scaleY, float scaleZ, vec3 treePosition)
+{
+    treePosition = SetVector(vertexArray[(r + (c * w) + (i * w * w)) * 3 + 0],
+                             vertexArray[(r + (c * w) + (i * w * w)) * 3 + 1],
+                             vertexArray[(r + (c * w) + (i * w * w)) * 3 + 2]);
+
+    vec3 y = Normalize(treePosition);
+
+    vec3 x_hat = {1, 0, 0};
+    x_hat = Normalize(x_hat);
+
+    vec3 z = Normalize(CrossProduct(x_hat, y));
+    vec3 x = Normalize(CrossProduct(y, z));
+
+    mat4 rotationMatrix = {{x.x, y.x, z.x, treePosition.x,
+                                   x.y, y.y, z.y, treePosition.y,
+                                   x.z, y.z, z.z, treePosition.z,
+                                   0.0, 0.0, 0.0, 1.0}};
+
+    treeMatrix = Mult(rotationMatrix, (S(scaleX, scaleY,scaleZ)));
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
+}
 
 void initForestWorld(void)
 {
@@ -110,8 +133,29 @@ void initForestWorld(void)
 
     program_tree = loadShaders("forestWorld/tree.vert", "forestWorld/tree.frag");
     printError("init tree shader");
-    tree = LoadModelPlus("object/Tree.obj");
+    //tree = LoadModelPlus("object/Tree.obj");
 
+    //Load maple trees - model and textures
+    maple_leaves = LoadModelPlus("object/MapleTreeLeaves.obj");
+    maple_stem = LoadModelPlus("object/MapleTreeStem.obj");
+    glUniform1i(glGetUniformLocation(program_tree, "texTree"), 1); // Texture unit 1
+    LoadTGATextureSimple("image/maple_leaf.tga", &texMapleLeaves);
+    LoadTGATextureSimple("image/bark.tga", &texMapleStem);
+
+    // Load firs - model and textures
+    tree_fir = LoadModelPlus("object/fir.obj");
+    LoadTGATextureSimple("image/branch.tga", &texBranch);
+    //LoadTGATextureSimple("image/bark.tga", &texStem);
+
+
+    // Load stumps - model and textures
+    stump = LoadModelPlus("object/stump.obj");
+    LoadTGATextureSimple("image/stump.tga", &texStump);
+
+
+    // Load rocks - model and textures
+    rock = LoadModelPlus("object/Rock.obj");
+    LoadTGATextureSimple("image/Rock.tga", &texRock);
 
 
     identityMatrix_forest = IdentityMatrix();
@@ -121,10 +165,10 @@ void initForestWorld(void)
 
 
     // Camera placement
-    R_forest = 3.0;
+    R_forest = 1.05;
     verticalAngle_forest = 0;
     horizontalAngle_forest = 1;
-    horizontalHeadAngle_forest = 0;
+    horizontalHeadAngle_forest = 1.7;
 
     //R_forest = 1.05;
     /*
@@ -176,39 +220,67 @@ void displayForestWorld(void)
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "camMatrix"), 1, GL_TRUE, camMatrix_forest.m);
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "identityMatrix"), 1, GL_TRUE, identityMatrix_forest.m);
 
-    int i = 0;
+    // Activate transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //int i = 0;
+    int i = 4;
     int c = 0;
     int r = 0;
     int w = ttex_forest.width + 1;
     vec3 treePosition;
-    for( i=0; i<cube_sides; i++ )
-        for( c=0; c<w; c++ )
+    //for( i=0; i<cube_sides; i++ )
+        for( c=0; c<w; c++ ) {
             for( r=0; r<w; r++ ) {
-                if (((c % 50) == 0) && ((r % 50) == 0)) {
-                    treePosition = SetVector(vertexArray[(r + (c*w) + (i*w*w)) * 3 + 0],
-                                             vertexArray[(r + (c*w) + (i*w*w)) * 3 + 1],
-                                             vertexArray[(r + (c*w) + (i*w*w)) * 3 + 2]);
 
-                    vec3 y = Normalize(treePosition);
+                // Draw Maple trees
+                if (((c % 27) == 0) && ((r % 27) == 0)) {
+                    if( ((c + 15) <= w ) && ((r + 15) <= w) ) {
+                        treeDisplay(i, (c + 15), (r + 15), w, 0.003, 0.005, 0.003, treePosition);
 
-                    vec3 x_hat = {1,0,0};
-                    x_hat = Normalize(x_hat);
+                        glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
-                    vec3 z = Normalize(CrossProduct(x_hat,y));
-                    vec3 x = Normalize(CrossProduct(y,z));
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, texMapleLeaves);        // Bind Our Texture tex
+                        DrawModel(maple_leaves, program_tree, "inPosition", "inNormal", "inTexCoord");
 
-                    mat4 rotationMatrix = {{x.x, y.x, z.x, treePosition.x,
-                                                   x.y, y.y, z.y, treePosition.y,
-                                                   x.z, y.z, z.z, treePosition.z,
-                                                   0.0, 0.0, 0.0, 1.0}};
-                    treeMatrix = Mult(rotationMatrix,(S(0.01, 0.01, 0.01)));
-
-
-                    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
-
-                    glBindTexture(GL_TEXTURE_2D, tex_grass);		// Bind Our Texture tex
-                    DrawModel(tree, program_tree, "inPosition", "inNormal", "inTexCoord");
-
+                        glBindTexture(GL_TEXTURE_2D, texMapleStem);        // Bind Our Texture tex
+                        DrawModel(maple_stem, program_tree, "inPosition", "inNormal", "inTexCoord");
+                    }
                 }
+
+                // Draw firs
+                if (((c % 27) == 0) && ((r % 27) == 0)) {
+                    treeDisplay(i, c, r, w, 0.03, 0.05, 0.03, treePosition);
+                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, texBranch);		// Bind Our Texture tex
+                    DrawModel(tree_fir, program_tree, "inPosition", "inNormal", "inTexCoord");
+                }
+
+                // Draw stumps
+                if (((c % 42) == 0) && ((r % 42) == 0)) {
+                    treeDisplay(i, c, r, w, 0.01, 0.01, 0.01, treePosition);
+                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, texStump);		// Bind Our Texture tex
+                    DrawModel(stump, program_tree, "inPosition", "inNormal", "inTexCoord");
+                }
+
+                // Draw rocks
+                if (((c % 52) == 0) && ((r % 52) == 0)) {
+                    treeDisplay(i, c, r, w, 0.0003, 0.0003, 0.0003, treePosition);
+                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, texRock);		// Bind Our Texture tex
+                    DrawModel(rock, program_tree, "inPosition", "inNormal", "inTexCoord");
+                }
+
+
             }
-}
+        }
+    }

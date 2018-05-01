@@ -2,7 +2,8 @@
 
 out vec4 outColor;
 in vec2 texCoord;
-uniform sampler2D tex;
+uniform int texSample;
+uniform sampler2D texTree;
 in vec3 ex_Normal;
 in vec3 ex_Surface;
 
@@ -26,5 +27,22 @@ void main(void)
 
 	shade = 1.0*diffuse + 1.0*specular;
 
-	outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
+    vec4 colorTree;
+
+
+	//outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
+
+	 if(texSample == 1)
+        {
+            colorTree = texture(texTree, texCoord);
+
+            if(colorTree.a == 0.0) {
+                discard; // discard transparent pixle
+            }
+            outColor = vec4(shade, shade, shade, 1.0) * colorTree;
+        }
+        else
+        {
+            outColor = vec4(shade*0.478, shade*0.314, shade*0.314, 1.0);
+        }
 }
