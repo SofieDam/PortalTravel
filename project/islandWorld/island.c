@@ -189,7 +189,7 @@ void initIslandWorld(void)
 }
 
 // Calculate object position
-void objectPosition(int i, int c, int r, int w, float scale, mat4 *modelMatrix, GLfloat *vertices)
+void objectPosition_island(int i, int c, int r, int w, float scale, mat4 *modelMatrix, GLfloat *vertices)
 {
     vec3 position = SetVector(vertices[(r + (c * w) + (i * w * w)) * 3 + 0],
                               vertices[(r + (c * w) + (i * w * w)) * 3 + 1],
@@ -257,7 +257,7 @@ void displayIslandWorld(void)
                     if ((c==100) && (r==100))
                     {
                         // Floating boat
-                        objectPosition(i, c, r, w, 0.005, &modelMatrix_object, sphereVertexArray);
+                        objectPosition_island(i, c, r, w, 0.005, &modelMatrix_object, sphereVertexArray);
                         glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
                         glBindTexture(GL_TEXTURE_2D, tex_boat);
                         DrawModel(boat, program_island, "inPosition", "inNormal", "inTexCoord");
@@ -271,7 +271,7 @@ void displayIslandWorld(void)
                         if (((c % 8) == 0) && ((r % 8) == 0)) {
 
                             // Boat at bottom
-                            objectPosition(i, c, r, w, 0.002, &modelMatrix_object, vertexArray);
+                            objectPosition_island(i, c, r, w, 0.002, &modelMatrix_object, vertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_boat);
                             DrawModel(boat, program_island, "inPosition", "inNormal", "inTexCoord");

@@ -5,8 +5,6 @@ Model *skybox_side[6];
 
 GLuint program_skybox;
 
-// Skybox
-GLuint cubemap;
 TextureData skyboxTex[6];
 
 mat4 cameraMatrix_skybox, projectionMatrix_skybox;
@@ -96,6 +94,7 @@ GLfloat skybox_texcoord[6][4*2] =
                         0.0, 1.0,
                 }
         };
+
 GLuint skybox_indices[6][6] =
         {
                 {0, 2, 1, 0, 3, 2},
@@ -110,14 +109,12 @@ GLuint skybox_indices[6][6] =
 
 char *textureFileName[6] =
         {
-
                 "image/sky.tga",   //left
                 "image/sky.tga",   //right
                 "image/sky.tga",   //top
                 "image/sky.tga",   //botton
                 "image/sky.tga",   //back
                 "image/sky.tga",   //front
-
         };
 
 
@@ -138,8 +135,6 @@ void initSkybox()
                 skybox_indices[i],
                 4,
                 6);
-        //printf("Loading texture data %d done\n", i);
-        // printf("Loading texture %s\n", textureFileName[i+TEXTURE_OFFSET]);
 
         LoadTGATexture(textureFileName[i+TEXTURE_OFFSET], &skyboxTex[i]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -158,7 +153,6 @@ void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix
 
     glUseProgram(program_skybox);
 
-    // draw box
     glDisable(GL_DEPTH_TEST);     // Turn off Z-buffer
 
     projectionMatrix_skybox = projectionMatrix;
@@ -172,7 +166,7 @@ void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix
     glUniformMatrix4fv(glGetUniformLocation(program_skybox, "camMatrix"), 1, GL_TRUE, cameraMatrix_skybox.m);
     glUniformMatrix4fv(glGetUniformLocation(program_skybox, "identityMatrix"), 1, GL_TRUE, identityMatrix.m);
 
-    glActiveTexture(GL_TEXTURE0); // Just make sure the texture unit match
+    glActiveTexture(GL_TEXTURE0);
 
     for (i = 0; i < 6; i++)
     {
@@ -182,10 +176,4 @@ void displaySkybox(mat4 projectionMatrix, mat4 cameraMatrix, mat4 identityMatrix
 
 
     glEnable(GL_DEPTH_TEST);        // Turn on Z-buffer
-
-    // Binding again just to be sure (for the day the code is mixed with others)
-    //glActiveTexture(GL_TEXTURE0); // Just make sure the texture unit match
-    //glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-
-
 }

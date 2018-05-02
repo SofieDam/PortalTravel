@@ -32,17 +32,17 @@ void main(void)
 
 	//outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
 
-	 if(texSample == 1)
-        {
-            colorTree = texture(texTree, texCoord);
+	if(texSample == 1)
+    {
+        colorTree = texture(texTree, texCoord);
 
-            if(colorTree.a == 0.0) {
-                discard; // discard transparent pixle
-            }
-            outColor = vec4(shade, shade, shade, 1.0) * colorTree;
+        if(colorTree.a == 0.0) {
+            discard; // discard transparent pixle
         }
-        else
-        {
-            outColor = vec4(shade*0.478, shade*0.314, shade*0.314, 1.0);
-        }
+        outColor = vec4(shade, shade, shade, 1.0) * colorTree;
+    }
+    else
+    {
+        outColor = vec4(shade*0.478, shade*0.314, shade*0.314, 1.0);
+    }
 }

@@ -6,6 +6,5 @@ uniform sampler2D tex;
 
 void main(void)
 {
-// Texture only:
 	outColor = texture(tex, texCoord);
 }
