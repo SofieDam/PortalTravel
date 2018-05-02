@@ -35,7 +35,7 @@ int portalCounter = 0;          // decides how long the first animation picture 
 float scalePortal = 0.0001;
 
 
-// For menu objects
+// Square, for menu objects.
 GLfloat menu_vertices[4*3] =
         {
                 -1.0, -1.0, 0.0,
@@ -148,7 +148,7 @@ void mouseEvent(int button, int state, int x, int y)
         }
     }
 
-    // Portal menu for forest world
+    // Portal menu
     if (((wrld == 1) || (wrld == 2)) && (button == 0) && (state == 1))
     {
         x = (float)x;
@@ -156,7 +156,7 @@ void mouseEvent(int button, int state, int x, int y)
 
         float d = sqrt(((x - c_portal_x)*(x - c_portal_x)) + ((y - c_portal_y)*(y - c_portal_y)));
 
-        // Open portal to world 1
+        // Portal menu was selected.
         if (d <= radius_portal)
         {
             portalAnimation = 1;
@@ -178,9 +178,10 @@ void initMenu(int s, int w)
     // World
     wrld = w;
 
-
+    // Shader program
     program_menu = loadShaders("menu/menu.vert", "menu/menu.frag");
 
+    // Load textures
     glUniform1i(glGetUniformLocation(program_menu, "tex"), 0); // Texture unit 0
     LoadTGATextureSimple("image/i_world.tga", &tex_button_island);
     LoadTGATextureSimple("image/portal_i_menu.tga", &tex_portal_island);
@@ -192,6 +193,7 @@ void initMenu(int s, int w)
     LoadTGATextureSimple("image/portal_i.tga", &tex_portal_i);
     LoadTGATextureSimple("image/portal_f.tga", &tex_portal_f);
 
+    // Create square
     square_model = LoadDataToModel(
             menu_vertices,
             NULL,
@@ -200,6 +202,9 @@ void initMenu(int s, int w)
             menu_indices,
             4,
             6);
+
+
+    // Matrices
 
     modelMatrix_button_background = S(-1.0, -1.0, -1.0);
 
@@ -212,6 +217,7 @@ void initMenu(int s, int w)
     // Init portal menu
     modelMatrix_portal_menu = Mult(T(-0.92, 0.92, 0.0), S(0.06, 0.06, 0.06));
     modelMatrix_open_portal = S(1.0, 1.0, 1.0);
+
 
     // Initialize values for calculation in mouseEvent() and mouseOverListener()
     // to determine if the mouse position appeared in the circle
@@ -307,7 +313,9 @@ void drawPortalMenu(GLuint tex)
     glDisable(GL_BLEND);
 }
 
-
+/*
+ * Portal menu for the forest world.
+ */
 void displayPortalMenu_forestWorld(void)
 {
     glUseProgram(program_menu);
@@ -327,6 +335,9 @@ void displayPortalMenu_forestWorld(void)
     }
 }
 
+/*
+ * Portal menu for the island world.
+ */
 void displayPortalMenu_islandWorld(void)
 {
     glUseProgram(program_menu);
@@ -346,6 +357,9 @@ void displayPortalMenu_islandWorld(void)
     }
 }
 
+/*
+ * Draw main menu (world = 0).
+ */
 void displayMenu(void)
 {
 

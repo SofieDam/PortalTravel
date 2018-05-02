@@ -87,9 +87,9 @@ Model* generateForest()
 }
 
 // Calculate tree position
-void treeDisplay(int i, int c, int r, int w, float scaleX, float scaleY, float scaleZ, vec3 treePosition)
+void treeDisplay(int i, int c, int r, int w, float scaleX, float scaleY, float scaleZ)
 {
-    treePosition = SetVector(vertexArray[(r + (c * w) + (i * w * w)) * 3 + 0],
+    vec3 treePosition = SetVector(vertexArray[(r + (c * w) + (i * w * w)) * 3 + 0],
                              vertexArray[(r + (c * w) + (i * w * w)) * 3 + 1],
                              vertexArray[(r + (c * w) + (i * w * w)) * 3 + 2]);
 
@@ -229,7 +229,6 @@ void displayForestWorld(void)
     int c = 0;
     int r = 0;
     int w = ttex_forest.width + 1;
-    vec3 treePosition;
     //for( i=0; i<cube_sides; i++ )
         for( c=0; c<w; c++ ) {
             for( r=0; r<w; r++ ) {
@@ -237,7 +236,7 @@ void displayForestWorld(void)
                 // Draw Maple trees
                 if (((c % 27) == 0) && ((r % 27) == 0)) {
                     if( ((c + 15) <= w ) && ((r + 15) <= w) ) {
-                        treeDisplay(i, (c + 15), (r + 15), w, 0.003, 0.005, 0.003, treePosition);
+                        treeDisplay(i, (c + 15), (r + 15), w, 0.003, 0.005, 0.003);
 
                         glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
@@ -252,7 +251,7 @@ void displayForestWorld(void)
 
                 // Draw firs
                 if (((c % 27) == 0) && ((r % 27) == 0)) {
-                    treeDisplay(i, c, r, w, 0.03, 0.05, 0.03, treePosition);
+                    treeDisplay(i, c, r, w, 0.03, 0.05, 0.03);
                     glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
                     glActiveTexture(GL_TEXTURE1);
@@ -262,7 +261,7 @@ void displayForestWorld(void)
 
                 // Draw stumps
                 if (((c % 42) == 0) && ((r % 42) == 0)) {
-                    treeDisplay(i, c, r, w, 0.01, 0.01, 0.01, treePosition);
+                    treeDisplay(i, c, r, w, 0.01, 0.01, 0.01);
                     glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
                     glActiveTexture(GL_TEXTURE1);
@@ -272,7 +271,7 @@ void displayForestWorld(void)
 
                 // Draw rocks
                 if (((c % 52) == 0) && ((r % 52) == 0)) {
-                    treeDisplay(i, c, r, w, 0.0003, 0.0003, 0.0003, treePosition);
+                    treeDisplay(i, c, r, w, 0.0003, 0.0003, 0.0003);
                     glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
                     glActiveTexture(GL_TEXTURE1);
