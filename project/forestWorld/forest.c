@@ -23,7 +23,7 @@ GLfloat *vertexArray;
  * 1. Build a cube.
  * 2. Normalize every vertex which will result in a sphere.
  */
-Model* generateForest()
+Model* generateForestPlanet()
 {
     int i, r, c;
     vec3 r_c_cube, r_c_sphere;
@@ -128,7 +128,7 @@ void initForestWorld(void)
     printError("init terrain data");
 
     // Generate planet
-    forest = generateForest();
+    forest = generateForestPlanet();
     printError("init planet model");
 
     program_tree = loadShaders("forestWorld/tree.vert", "forestWorld/tree.frag");
