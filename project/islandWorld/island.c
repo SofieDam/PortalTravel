@@ -289,12 +289,13 @@ void displayIslandWorld(void)
                         }
                 }
 
-                if ((i == 0)) {
+                if ((i == 0))
+                {
                     if ((39 < c) && (c < 160) && (200 < r) && (r < w)) {
                         if (((c % 40) == 0) && ((r % 32) == 0)) {
 
                             // Palm
-                            objectPosition_island(i, c+45, r, w, 0.0002, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c+45, r, w, 0.0001, &modelMatrix_object, sphereVertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_palm);
@@ -302,39 +303,42 @@ void displayIslandWorld(void)
                         }
                     }
                 }
-                if (i == 1) {
+                if (i == 1)
+                {
                     if (((64 < c) && (c < 161) && (0 < r) && (r < 50)) ||
                         ((50 < c) && (c < 161) && (70 < r) && (r < 100)) ||
                         ((10 < c) && (c < 140) && (50 < r) && (r < 70)) ||
                         ((70 < c) && (c < 161) && (100 < r) && (r < 130))) {
                         if (((c % 35) == 0) && ((r % 32) == 0)) {
                             // Palm
-                            objectPosition_island(i, c, r, w, 0.0002, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c, r, w, 0.0001, &modelMatrix_object, sphereVertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_palm);
                             DrawModel(palm, program_island, "inPosition", "inNormal", "inTexCoord");
                         }
                     }
-
-                    if (((100 < c) && (c < 180) && (0 < r) && (r < 130))) {
-                        if (((c % 20) == 0) && ((r % 20) == 0)) {
+                }
+                if (i == 0)
+                {
+                    //if (((100 < c) && (c < 180) && (0 < r) && (r < 130))) {
+                        if (((c % 50) == 0) && ((r % 50) == 0)) {
                             // Shell1
-                            objectPosition_island(i, c, r, w, 0.0007, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c, r, w, 0.0002, &modelMatrix_object, vertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_shell1);
                             DrawModel(shell1, program_island, "inPosition", "inNormal", "inTexCoord");
 
                             // Shell2
-                            objectPosition_island(i, c + 5, r - 5, w, 0.0008, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c + 5, r - 5, w, 0.0003, &modelMatrix_object, vertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_shell2);
                             DrawModel(shell2, program_island, "inPosition", "inNormal", "inTexCoord");
                         }
 
-                    }
+                    //}
 
 
                 }
