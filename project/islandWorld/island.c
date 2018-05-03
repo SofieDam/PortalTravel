@@ -5,13 +5,13 @@
 #include <time.h>
 
 // Model
-Model *island, *ocean, *boat;
+Model *island, *ocean, *boat, *palm, *shell1, *shell2;
 
 // Shader program
 GLuint program_island, program_ocean;
 
 // Texture
-GLuint tex_sand, tex_boat;
+GLuint tex_sand, tex_boat, tex_palm, tex_shell1, tex_shell2;
 
 // Height-map
 TextureData ttex_island;
@@ -167,6 +167,16 @@ void initIslandWorld(void)
     // Load terrain data
     LoadTGATextureData("image/fft-terrain.tga", &ttex_island);
 
+    // Load Palm trees - model and textures
+    palm = LoadModelPlus("object/palm.obj");
+    LoadTGATextureSimple("image/palm.tga", &tex_palm);
+
+    // Load Palm trees - model and textures
+    shell1 = LoadModelPlus("object/shell1.obj");
+    shell2 = LoadModelPlus("object/shell2.obj");
+    LoadTGATextureSimple("image/shell1.tga", &tex_shell1);
+    LoadTGATextureSimple("image/shell2.tga", &tex_shell2);
+
     // Generate planet
     generateIslandPlanet();
 
@@ -182,10 +192,11 @@ void initIslandWorld(void)
     modelMatrix_island = Mult(modelMatrix_island, Ry(-0.3));
 
     // Camera placement
-    R_island = 1.05;
+    R_island = 1.1;
     verticalAngle_island = 0;
     horizontalAngle_island = 0.55;
-    horizontalHeadAngle_island = 1.5;
+    horizontalHeadAngle_island = 1.7;
+
 }
 
 // Calculate object position
@@ -278,6 +289,55 @@ void displayIslandWorld(void)
                         }
                 }
 
+                if ((i == 0)) {
+                    if ((39 < c) && (c < 160) && (200 < r) && (r < w)) {
+                        if (((c % 40) == 0) && ((r % 32) == 0)) {
+
+                            // Palm
+                            objectPosition_island(i, c+45, r, w, 0.0002, &modelMatrix_object, sphereVertexArray);
+                            glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
+                                               modelMatrix_object.m);
+                            glBindTexture(GL_TEXTURE_2D, tex_palm);
+                            DrawModel(palm, program_island, "inPosition", "inNormal", "inTexCoord");
+                        }
+                    }
+                }
+                if (i == 1) {
+                    if (((64 < c) && (c < 161) && (0 < r) && (r < 50)) ||
+                        ((50 < c) && (c < 161) && (70 < r) && (r < 100)) ||
+                        ((10 < c) && (c < 140) && (50 < r) && (r < 70)) ||
+                        ((70 < c) && (c < 161) && (100 < r) && (r < 130))) {
+                        if (((c % 35) == 0) && ((r % 32) == 0)) {
+                            // Palm
+                            objectPosition_island(i, c, r, w, 0.0002, &modelMatrix_object, sphereVertexArray);
+                            glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
+                                               modelMatrix_object.m);
+                            glBindTexture(GL_TEXTURE_2D, tex_palm);
+                            DrawModel(palm, program_island, "inPosition", "inNormal", "inTexCoord");
+                        }
+                    }
+
+                    if (((100 < c) && (c < 180) && (0 < r) && (r < 130))) {
+                        if (((c % 20) == 0) && ((r % 20) == 0)) {
+                            // Shell1
+                            objectPosition_island(i, c, r, w, 0.0007, &modelMatrix_object, sphereVertexArray);
+                            glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
+                                               modelMatrix_object.m);
+                            glBindTexture(GL_TEXTURE_2D, tex_shell1);
+                            DrawModel(shell1, program_island, "inPosition", "inNormal", "inTexCoord");
+
+                            // Shell2
+                            objectPosition_island(i, c + 5, r - 5, w, 0.0008, &modelMatrix_object, sphereVertexArray);
+                            glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
+                                               modelMatrix_object.m);
+                            glBindTexture(GL_TEXTURE_2D, tex_shell2);
+                            DrawModel(shell2, program_island, "inPosition", "inNormal", "inTexCoord");
+                        }
+
+                    }
+
+
+                }
             }
         }
 
