@@ -2,10 +2,13 @@
  * Create and draw everything connected to the forest world.
  */
 
-mat4 projectionMatrix_forest, identityMatrix_forest, modelMatrix_forest, camMatrix_forest, treeMatrix;
+mat4 projectionMatrix_forest, identityMatrix_forest, modelMatrix_forest, camMatrix_forest, objectMatrix;
+
+// Vertex array for sphere
+GLfloat *vertexArray;
 
 // vertex array object
-Model *forest, *tree_fir, *maple_leaves, *maple_stem, *stump, *rock;
+Model *forest, *tree_fir, *maple_leaves, *maple_stem, *stump, *rock, *eagle;
 
 // Reference to shader program
 GLuint program_forest, program_tree;
@@ -13,10 +16,11 @@ GLuint program_forest, program_tree;
 GLuint tex_grass, texBranch, texMapleLeaves, texMapleStem, texStump, texRock, texPalm;
 TextureData ttex_forest; // terrain
 
+// Camera
 float R_forest, verticalAngle_forest, horizontalAngle_forest, horizontalHeadAngle_forest;
 
-GLfloat *vertexArray;
-
+// Bird position
+float verticalAngle_bird, horizontalAngle_bird;
 
 
 /*
@@ -106,8 +110,8 @@ void objectPosition_forest(int i, int c, int r, int w, float scaleX, float scale
                                    x.z, y.z, z.z, objectPosition.z,
                                    0.0, 0.0, 0.0, 1.0}};
 
-    treeMatrix = Mult(rotationMatrix, (S(scaleX, scaleY,scaleZ)));
-    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, treeMatrix.m);
+    objectMatrix = Mult(rotationMatrix, (S(scaleX, scaleY,scaleZ)));
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, objectMatrix.m);
 }
 
 void initForestWorld(void)
@@ -148,6 +152,9 @@ void initForestWorld(void)
     rock = LoadModelPlus("object/Rock.obj");
     LoadTGATextureSimple("image/Rock.tga", &texRock);
 
+    // Eagle
+    eagle = LoadModelPlus("object/eagle.obj");
+
 
     // Matrices
     identityMatrix_forest = IdentityMatrix();
@@ -168,9 +175,53 @@ void initForestWorld(void)
     horizontalHeadAngle_forest = 1.5;
      */
 
+    // Bird
+    verticalAngle_bird = 0;
+    horizontalAngle_bird = 0;
 
 }
 
+void drawBird(int yAxis, float r_bird)
+{
+    vec3 objectPosition;
+
+    // Rotate around y-axis
+    if (yAxis == 1) {
+        objectPosition = SetVector(r_bird * cos(0) * cos(horizontalAngle_bird),
+                                   r_bird * sin(0),
+                                   r_bird * cos(0) * sin(horizontalAngle_bird));
+    }
+    // Rotate around x-axis
+    else
+    {
+        objectPosition = SetVector(r_bird * sin(verticalAngle_bird),
+                                   r_bird * cos(verticalAngle_bird) * cos(0),
+                                   r_bird * cos(verticalAngle_bird) * sin(0));
+    }
+
+
+    vec3 y = Normalize(objectPosition);
+
+    vec3 x_hat = {1, 0, 0};
+    x_hat = Normalize(x_hat);
+
+    vec3 z = Normalize(CrossProduct(x_hat, y));
+    vec3 x = Normalize(CrossProduct(y, z));
+
+    mat4 rotationMatrix = {{       x.x, y.x, z.x, objectPosition.x,
+                                   x.y, y.y, z.y, objectPosition.y,
+                                   x.z, y.z, z.z, objectPosition.z,
+                                   0.0, 0.0, 0.0, 1.0}};
+
+    rotationMatrix = Mult(rotationMatrix, Ry(-M_PI/2));
+
+    objectMatrix = Mult(rotationMatrix, (S(0.3, 0.3, 0.3)));
+
+    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, objectMatrix.m);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texStump);
+    DrawModel(eagle, program_tree, "inPosition", "inNormal", "inTexCoord");
+}
 
 void displayForestWorld(void)
 {
@@ -274,4 +325,10 @@ void displayForestWorld(void)
         }
 
     glDisable(GL_BLEND); // Disable blending
+
+    // Bird
+    drawBird(1, 1.2);
+    drawBird(0, 1.5);
+    horizontalAngle_bird += 0.01;   // update bird position horizontally
+    verticalAngle_bird += 0.01;     // update bird position vertically
     }
