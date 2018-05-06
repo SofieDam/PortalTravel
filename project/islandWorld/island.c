@@ -204,7 +204,6 @@ void initIslandWorld(void)
     horizontalHeadAngle_island = 1.7;
 
     // Fish
-    // Bird
     verticalAngle_fish = 0;
     horizontalAngle_fish = 0;
 
@@ -217,18 +216,7 @@ void objectPosition_island(int i, int c, int r, int w, float scale, mat4 *modelM
                               vertices[(r + (c * w) + (i * w * w)) * 3 + 1],
                               vertices[(r + (c * w) + (i * w * w)) * 3 + 2]);
 
-    vec3 y = Normalize(position);
-
-    vec3 x_hat = {1, 0, 0};
-    x_hat = Normalize(x_hat);
-
-    vec3 z = Normalize(CrossProduct(x_hat, y));
-    vec3 x = Normalize(CrossProduct(y, z));
-
-    mat4 rotationMatrix = {{x.x, y.x, z.x, position.x,
-                                   x.y, y.y, z.y, position.y,
-                                   x.z, y.z, z.z, position.z,
-                                   0.0, 0.0, 0.0, 1.0}};
+    mat4 rotationMatrix = calculateObjectMatrix(position);
 
     *modelMatrix = Mult(rotationMatrix, (S(scale, scale, scale)));
 }
@@ -236,42 +224,39 @@ void objectPosition_island(int i, int c, int r, int w, float scale, mat4 *modelM
 void drawFish(int yAxis, float r_fish)
 {
     vec3 objectPosition;
+    float v = 0;
 
-    // Rotate around y-axis
-    if (yAxis == 1) {
-        objectPosition = SetVector(r_fish * cos(0) * cos(horizontalAngle_fish),
-                                   r_fish * sin(0),
-                                   r_fish * cos(0) * sin(horizontalAngle_fish));
-    }
-    // Rotate around x-axis
-    else
+    int i;
+    for (i = 0; i < 6; ++i)
     {
-        objectPosition = SetVector(r_fish * sin(verticalAngle_fish),
-                                   r_fish * cos(verticalAngle_fish) * cos(0),
-                                   r_fish * cos(verticalAngle_fish) * sin(0));
+        // Rotate around y-axis
+        if (yAxis == 1) {
+            objectPosition = SetVector(r_fish * cos(0) * cos(horizontalAngle_fish + v),
+                                       r_fish * sin(0),
+                                       r_fish * cos(0) * sin(horizontalAngle_fish + v));
+        }
+            // Rotate around x-axis
+        else
+        {
+            objectPosition = SetVector(r_fish * sin(verticalAngle_fish + v),
+                                       r_fish * cos(verticalAngle_fish + v) * cos(0),
+                                       r_fish * cos(verticalAngle_fish + v) * sin(0));
+        }
+
+
+        mat4 rotationMatrix = calculateObjectMatrix(objectPosition);
+
+
+        rotationMatrix = Mult(rotationMatrix, Ry(-M_PI/2));
+
+        modelMatrix_object = Mult(rotationMatrix, (S(0.005, 0.003, 0.005)));
+
+        glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
+        glBindTexture(GL_TEXTURE_2D, tex_shell2);
+        DrawModel(fish, program_island, "inPosition", "inNormal", "inTexCoord");
+
+        v += 0.05;
     }
-
-
-    vec3 y = Normalize(objectPosition);
-
-    vec3 x_hat = {1, 0, 0};
-    x_hat = Normalize(x_hat);
-
-    vec3 z = Normalize(CrossProduct(x_hat, y));
-    vec3 x = Normalize(CrossProduct(y, z));
-
-    mat4 rotationMatrix = {{       x.x, y.x, z.x, objectPosition.x,
-                                   x.y, y.y, z.y, objectPosition.y,
-                                   x.z, y.z, z.z, objectPosition.z,
-                                   0.0, 0.0, 0.0, 1.0}};
-
-    rotationMatrix = Mult(rotationMatrix, Ry(-M_PI/2));
-
-    modelMatrix_object = Mult(rotationMatrix, (S(0.005, 0.003, 0.005)));
-
-    glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE, modelMatrix_object.m);
-    glBindTexture(GL_TEXTURE_2D, tex_shell2);
-    DrawModel(fish, program_island, "inPosition", "inNormal", "inTexCoord");
 }
 
 void displayIslandWorld(void)
@@ -346,7 +331,7 @@ void displayIslandWorld(void)
                         if (((c % 40) == 0) && ((r % 32) == 0)) {
 
                             // Palm
-                            objectPosition_island(i, c+45, r, w, 0.0001, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c+45, r, w, 0.00005, &modelMatrix_object, sphereVertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_palm);
@@ -362,7 +347,7 @@ void displayIslandWorld(void)
                         ((70 < c) && (c < 161) && (100 < r) && (r < 130))) {
                         if (((c % 35) == 0) && ((r % 32) == 0)) {
                             // Palm
-                            objectPosition_island(i, c, r, w, 0.0001, &modelMatrix_object, sphereVertexArray);
+                            objectPosition_island(i, c, r, w, 0.00005, &modelMatrix_object, sphereVertexArray);
                             glUniformMatrix4fv(glGetUniformLocation(program_island, "modelMatrix"), 1, GL_TRUE,
                                                modelMatrix_object.m);
                             glBindTexture(GL_TEXTURE_2D, tex_palm);
@@ -398,8 +383,8 @@ void displayIslandWorld(void)
 
     drawFish(1, 1.004);
     drawFish(0, 1.004);
-    horizontalAngle_fish += 0.001;   // update bird position horizontally
-    verticalAngle_fish += 0.001;     // update bird position vertically
+    horizontalAngle_fish += 0.001;   // update fish position horizontally
+    verticalAngle_fish += 0.001;     // update fish position vertically
 
     // ---------------------------      Ocean       ---------------------------
 

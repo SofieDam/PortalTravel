@@ -93,10 +93,10 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
 
     };
     if (glutKeyIsDown('w')) {
-        *horizontalHeadAngle += 0.01;
+        *horizontalHeadAngle += 0.1;
     };
     if (glutKeyIsDown('s')) {
-        *horizontalHeadAngle -= 0.01;
+        *horizontalHeadAngle -= 0.1;
     };
 
 }

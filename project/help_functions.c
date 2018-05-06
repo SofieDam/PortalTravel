@@ -50,3 +50,24 @@ void calculateNormals(GLfloat *vertexArray, GLfloat *normalArray, int w, int i, 
     normalArray[(r + (c*w) + (i*w*w))*3 + 1] = normalVector.y;
     normalArray[(r + (c*w) + (i*w*w))*3 + 2] = normalVector.z;
 }
+
+/*
+ * Calculate rotation and translation for an object around a sphere.
+ */
+mat4 calculateObjectMatrix(vec3 objectPosition)
+{
+    vec3 y = Normalize(objectPosition);
+
+    vec3 x_hat = {1, 0, 0};
+    x_hat = Normalize(x_hat);
+
+    vec3 z = Normalize(CrossProduct(x_hat, y));
+    vec3 x = Normalize(CrossProduct(y, z));
+
+    mat4 rotationMatrix = {{       x.x, y.x, z.x, objectPosition.x,
+                                   x.y, y.y, z.y, objectPosition.y,
+                                   x.z, y.z, z.z, objectPosition.z,
+                                   0.0, 0.0, 0.0, 1.0}};
+
+    return rotationMatrix;
+}

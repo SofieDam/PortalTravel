@@ -97,18 +97,7 @@ void objectPosition_forest(int i, int c, int r, int w, float scaleX, float scale
                              vertexArray[(r + (c * w) + (i * w * w)) * 3 + 1],
                              vertexArray[(r + (c * w) + (i * w * w)) * 3 + 2]);
 
-    vec3 y = Normalize(objectPosition);
-
-    vec3 x_hat = {1, 0, 0};
-    x_hat = Normalize(x_hat);
-
-    vec3 z = Normalize(CrossProduct(x_hat, y));
-    vec3 x = Normalize(CrossProduct(y, z));
-
-    mat4 rotationMatrix = {{       x.x, y.x, z.x, objectPosition.x,
-                                   x.y, y.y, z.y, objectPosition.y,
-                                   x.z, y.z, z.z, objectPosition.z,
-                                   0.0, 0.0, 0.0, 1.0}};
+    mat4 rotationMatrix = calculateObjectMatrix(objectPosition);
 
     objectMatrix = Mult(rotationMatrix, (S(scaleX, scaleY,scaleZ)));
     glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, objectMatrix.m);
@@ -162,10 +151,10 @@ void initForestWorld(void)
 
 
     // Camera placement
-    R_forest = 1.05;
-    verticalAngle_forest = 0;
-    horizontalAngle_forest = 1;
-    horizontalHeadAngle_forest = 1.7;
+    R_forest = 1.3;
+    verticalAngle_forest = -0.54;
+    horizontalAngle_forest = 1.4;
+    horizontalHeadAngle_forest = 6.0;
 
     //R_forest = 1.05;
     /*
@@ -184,43 +173,38 @@ void initForestWorld(void)
 void drawBird(int yAxis, float r_bird)
 {
     vec3 objectPosition;
+    float v = 0;
 
-    // Rotate around y-axis
-    if (yAxis == 1) {
-        objectPosition = SetVector(r_bird * cos(0) * cos(horizontalAngle_bird),
-                                   r_bird * sin(0),
-                                   r_bird * cos(0) * sin(horizontalAngle_bird));
-    }
-    // Rotate around x-axis
-    else
+    int i;
+    for (i = 0; i < 3; ++i)
     {
-        objectPosition = SetVector(r_bird * sin(verticalAngle_bird),
-                                   r_bird * cos(verticalAngle_bird) * cos(0),
-                                   r_bird * cos(verticalAngle_bird) * sin(0));
+        // Rotate around y-axis
+        if (yAxis == 1) {
+            objectPosition = SetVector(r_bird * cos(0) * cos(horizontalAngle_bird + v),
+                                       r_bird * sin(0),
+                                       r_bird * cos(0) * sin(horizontalAngle_bird + v));
+        }
+            // Rotate around x-axis
+        else
+        {
+            objectPosition = SetVector(r_bird * sin(verticalAngle_bird + v),
+                                       r_bird * cos(verticalAngle_bird + v) * cos(0),
+                                       r_bird * cos(verticalAngle_bird + v) * sin(0));
+        }
+
+        mat4 rotationMatrix = calculateObjectMatrix(objectPosition);
+
+        rotationMatrix = Mult(rotationMatrix, Ry(-M_PI/2));
+
+        objectMatrix = Mult(rotationMatrix, (S(0.3, 0.3, 0.3)));
+
+        glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, objectMatrix.m);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texStump);
+        DrawModel(eagle, program_tree, "inPosition", "inNormal", "inTexCoord");
+
+        v += 0.3;
     }
-
-
-    vec3 y = Normalize(objectPosition);
-
-    vec3 x_hat = {1, 0, 0};
-    x_hat = Normalize(x_hat);
-
-    vec3 z = Normalize(CrossProduct(x_hat, y));
-    vec3 x = Normalize(CrossProduct(y, z));
-
-    mat4 rotationMatrix = {{       x.x, y.x, z.x, objectPosition.x,
-                                   x.y, y.y, z.y, objectPosition.y,
-                                   x.z, y.z, z.z, objectPosition.z,
-                                   0.0, 0.0, 0.0, 1.0}};
-
-    rotationMatrix = Mult(rotationMatrix, Ry(-M_PI/2));
-
-    objectMatrix = Mult(rotationMatrix, (S(0.3, 0.3, 0.3)));
-
-    glUniformMatrix4fv(glGetUniformLocation(program_tree, "modelMatrix"), 1, GL_TRUE, objectMatrix.m);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texStump);
-    DrawModel(eagle, program_tree, "inPosition", "inNormal", "inTexCoord");
 }
 
 void displayForestWorld(void)
@@ -266,63 +250,66 @@ void displayForestWorld(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //int i = 0;
-    int i = 4;
+    int i = 0;
     int c = 0;
     int r = 0;
     int w = ttex_forest.width + 1;
-    //for( i=0; i<cube_sides; i++ )
-        for( c=0; c<w; c++ ) {
-            for( r=0; r<w; r++ ) {
+    for( i=0; i<4; i++ )
+        if (i != 2) {
+            for( c=0; c<w; c++ ) {
+                for( r=0; r<w; r++ ) {
 
-                // Draw Maple trees
-                if (((c % 27) == 0) && ((r % 27) == 0)) {
-                    if( ((c + 15) <= w ) && ((r + 15) <= w) ) {
-                        objectPosition_forest(i, (c + 15), (r + 15), w, 0.003, 0.005, 0.003);
+                    // Draw Maple trees
+                    if (((c % 27) == 0) && ((r % 27) == 0)) {
+                        if( ((c + 15) <= w ) && ((r + 15) <= w) ) {
+                            objectPosition_forest(i, (c + 15), (r + 15), w, 0.004, 0.004, 0.004);
 
+                            glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                            glActiveTexture(GL_TEXTURE1);
+                            glBindTexture(GL_TEXTURE_2D, texMapleLeaves);
+                            DrawModel(maple_leaves, program_tree, "inPosition", "inNormal", "inTexCoord");
+
+                            glBindTexture(GL_TEXTURE_2D, texMapleStem);
+                            DrawModel(maple_stem, program_tree, "inPosition", "inNormal", "inTexCoord");
+                        }
+                    }
+
+                    // Draw firs
+                    if (((c % 27) == 0) && ((r % 27) == 0)) {
+                        objectPosition_forest(i, c, r, w, 0.03, 0.03, 0.03);
                         glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
 
                         glActiveTexture(GL_TEXTURE1);
-                        glBindTexture(GL_TEXTURE_2D, texMapleLeaves);
-                        DrawModel(maple_leaves, program_tree, "inPosition", "inNormal", "inTexCoord");
-
-                        glBindTexture(GL_TEXTURE_2D, texMapleStem);
-                        DrawModel(maple_stem, program_tree, "inPosition", "inNormal", "inTexCoord");
+                        glBindTexture(GL_TEXTURE_2D, texBranch);
+                        DrawModel(tree_fir, program_tree, "inPosition", "inNormal", "inTexCoord");
                     }
+
+                    // Draw stumps
+                    if (((c % 42) == 0) && ((r % 42) == 0)) {
+                        objectPosition_forest(i, c, r, w, 0.01, 0.01, 0.01);
+                        glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, texStump);
+                        DrawModel(stump, program_tree, "inPosition", "inNormal", "inTexCoord");
+                    }
+
+                    // Draw rocks
+                    if (((c % 52) == 0) && ((r % 52) == 0)) {
+                        objectPosition_forest(i, c, r, w, 0.0002, 0.0002, 0.0002);
+                        glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
+
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, texRock);
+                        DrawModel(rock, program_tree, "inPosition", "inNormal", "inTexCoord");
+                    }
+
+
                 }
-
-                // Draw firs
-                if (((c % 27) == 0) && ((r % 27) == 0)) {
-                    objectPosition_forest(i, c, r, w, 0.03, 0.05, 0.03);
-                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
-
-                    glActiveTexture(GL_TEXTURE1);
-                    glBindTexture(GL_TEXTURE_2D, texBranch);
-                    DrawModel(tree_fir, program_tree, "inPosition", "inNormal", "inTexCoord");
-                }
-
-                // Draw stumps
-                if (((c % 42) == 0) && ((r % 42) == 0)) {
-                    objectPosition_forest(i, c, r, w, 0.01, 0.01, 0.01);
-                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
-
-                    glActiveTexture(GL_TEXTURE1);
-                    glBindTexture(GL_TEXTURE_2D, texStump);
-                    DrawModel(stump, program_tree, "inPosition", "inNormal", "inTexCoord");
-                }
-
-                // Draw rocks
-                if (((c % 52) == 0) && ((r % 52) == 0)) {
-                    objectPosition_forest(i, c, r, w, 0.0003, 0.0003, 0.0003);
-                    glUniform1i(glGetUniformLocation(program_tree, "texSample"), 1);
-
-                    glActiveTexture(GL_TEXTURE1);
-                    glBindTexture(GL_TEXTURE_2D, texRock);
-                    DrawModel(rock, program_tree, "inPosition", "inNormal", "inTexCoord");
-                }
-
-
             }
         }
+
 
     glDisable(GL_BLEND); // Disable blending
 
