@@ -37,9 +37,10 @@ const float height_ocean = 0.008;
 // Fish position
 float verticalAngle_fish, horizontalAngle_fish;
 
-
-// Quadratic distance function
-// Lower the height around the circle
+/*
+ * Quadratic distance function.
+ * Lower the height around the circle.
+ */
 float generateIslandMask(float island_size, float r, float c)
 {
     island_size = island_size * 0.5;
