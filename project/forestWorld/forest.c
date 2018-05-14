@@ -126,12 +126,10 @@ void initForestWorld(void)
     maple_stem = LoadModelPlus("object/MapleTreeStem.obj");
     glUniform1i(glGetUniformLocation(program_tree, "texTree"), 1); // Texture unit 1
     LoadTGATextureSimple("image/maple_leaf.tga", &texMapleLeaves);
-    LoadTGATextureSimple("image/bark.tga", &texMapleStem);
 
     // Load firs - model and textures
     tree_fir = LoadModelPlus("object/fir.obj");
     LoadTGATextureSimple("image/branch.tga", &texBranch);
-    //LoadTGATextureSimple("image/bark.tga", &texStem);
 
     // Load stumps - model and textures
     stump = LoadModelPlus("object/stump.obj");
@@ -144,11 +142,9 @@ void initForestWorld(void)
     // Eagle
     eagle = LoadModelPlus("object/eagle.obj");
 
-
     // Matrices
     identityMatrix_forest = IdentityMatrix();
     modelMatrix_forest = S(1.0, 1.0, 1.0);
-
 
     // Camera placement
     R_forest = 1.3;
@@ -156,18 +152,9 @@ void initForestWorld(void)
     horizontalAngle_forest = 1.4;
     horizontalHeadAngle_forest = 6.0;
 
-    //R_forest = 1.05;
-    /*
-    R_forest = 3.0;
-    verticalAngle_forest = 0;
-    horizontalAngle_forest = 1;
-    horizontalHeadAngle_forest = 1.5;
-     */
-
     // Bird
     verticalAngle_bird = 0;
     horizontalAngle_bird = 0;
-
 }
 
 void drawBird(int yAxis, float r_bird)

@@ -125,8 +125,6 @@ void mouseEvent(int button, int state, int x, int y)
     // Main menu
     if ((wrld == 0) && (button == 0) && (state == 1))
     {
-        //printf("Button: %i, state: %i, x: %i, y: %i\n", button, state, x, y);
-
         x = (float)x;
         y = (float)y;
 
@@ -163,10 +161,7 @@ void mouseEvent(int button, int state, int x, int y)
             portalCounter = 2;
         }
     }
-
-    //printf("Button: %i, state: %i, x: %i, y: %i\n", button, state, x, y);
 }
-
 
 
 
@@ -362,7 +357,6 @@ void displayPortalMenu_islandWorld(void)
  */
 void displayMenu(void)
 {
-
     glUseProgram(program_menu);
 
     // Background

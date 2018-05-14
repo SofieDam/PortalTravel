@@ -57,41 +57,12 @@ void keyboard(float *R, float *verticalAngle, float *horizontalAngle, float* hor
     }
     if (glutKeyIsDown('z'))
     {
-        /*
-        if (*R >= 1.02) {
-            *R -= 0.001;
-        }
-
         *R -= 0.01;
-         */
-
-        *R -= 0.01;
-
-        /*
-        if (*R <= 1.01) {
-            *R = 1.01;
-        }
-         */
     }
     if (glutKeyIsDown('x'))
     {
-        //*R += 0.001;
-        //*R += 0.01;
         *R += 0.01;
-
-        /*
-        if (*R >= 1.50) {
-            *R = 1.50;
-        }
-         */
     }
-
-    if (glutKeyIsDown('d')) {
-
-    };
-    if (glutKeyIsDown('a')) {
-
-    };
     if (glutKeyIsDown('w')) {
         *horizontalHeadAngle += 0.1;
     };

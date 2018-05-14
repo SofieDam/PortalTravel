@@ -358,7 +358,6 @@ void displayIslandWorld(void)
                 }
                 if (i == 0)
                 {
-                    //if (((100 < c) && (c < 180) && (0 < r) && (r < 130))) {
                         if (((c % 50) == 0) && ((r % 50) == 0)) {
                             // Shell1
                             objectPosition_island(i, c, r, w, 0.0002, &modelMatrix_object, vertexArray);
@@ -374,10 +373,6 @@ void displayIslandWorld(void)
                             glBindTexture(GL_TEXTURE_2D, tex_shell2);
                             DrawModel(shell2, program_island, "inPosition", "inNormal", "inTexCoord");
                         }
-
-                    //}
-
-
                 }
             }
         }
@@ -409,7 +404,4 @@ void displayIslandWorld(void)
 
     // Disable blending
     glDisable(GL_BLEND);
-
-
-
 }

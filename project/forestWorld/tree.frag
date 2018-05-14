@@ -30,8 +30,6 @@ void main(void)
     vec4 colorTree;
 
 
-	//outColor = vec4(shade, shade, shade, 1.0) * texture(tex, texCoord);
-
 	if(texSample == 1)
     {
         colorTree = texture(texTree, texCoord);
